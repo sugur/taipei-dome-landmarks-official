@@ -241,7 +241,7 @@
     header .main-title{font-size:2.016mm !important; margin:0 !important; line-height:1.1 !important; display:inline !important; color:#3E2723 !important;}
     header h1{font-size:2.016mm !important; margin:0 !important; line-height:1.1 !important; display:inline !important; color:#3E2723 !important;}
     #result{display:none !important;}
-    .title-break-always{display:none !important;}
+    .title-break-always{display:inline !important;}
     .print-dual{
       display:block !important; position:static !important; top:auto !important; left:auto !important;
       visibility:visible !important; width:auto !important;
@@ -275,7 +275,7 @@
     .scene{margin-bottom:0px !important; border-width:1px !important; border-radius:7px !important;}
     .scene-title{padding:0px 8px 0px 8px !important; font-size:2.673486868218642rem !important; gap:6px !important;}
     .scene-title.scene-title-big{font-size:3.3958886854852546rem !important; color:#4e342e !important; line-height:1.0 !important; padding-top:0.1mm !important;}
-    .scene-tag{padding:1px 7px !important; font-size:2.457750951375667rem !important; gap:4px !important;}
+    .scene-tag{padding:1px 7px !important; font-size:2.838702348838896rem !important; gap:4px !important;}
     .scene-tag .tag-text{line-height:1.08 !important;}
     .scene-tag .dot{width:8px !important; height:8px !important;}
     .field{padding:3px 7px !important; background:#ffffff !important; min-width:0 !important;}
@@ -335,7 +335,7 @@
     .scene{margin-bottom:0px !important;}
     .scene-title{padding:0px 7.8px 0px 7.8px !important; font-size:1.2935408245946178rem !important; gap:5.2px !important;}
     .scene-title.scene-title-big{font-size:1.6430679733920002rem !important; color:#4e342e !important; line-height:1.0 !important; padding-top:0.1mm !important;}
-    .scene-tag{padding:0px 5px !important; font-size:1.3169533132800002rem !important; gap:3px !important;}
+    .scene-tag{padding:0px 5px !important; font-size:1.5210810768384004rem !important; gap:3px !important;}
     .scene-tag .tag-text{line-height:1.08 !important;}
     .scene-tag .dot{width:6px !important; height:6px !important;}
     .field{padding:2px 5px !important; min-width:0 !important;}
@@ -1171,6 +1171,15 @@ function buildScenesHtml(rec, phase){
         : { label: '地標圖', badgeIcon: true };
       fields = [{ label: '', value: '' }, iconField].concat(fields);
     }
+    if (scene.title === '34.化城喻手札') {
+      // 區域 is kept on scene.fields (read below by the 重要拍點 cue logic to
+      // pick which cue variant applies) but not shown as its own displayed
+      // field, per explicit request.
+      fields = fields.filter(f => f.label !== '區域');
+    }
+    if (scene.title === '30.心蓮') {
+      fields = fields.filter(f => f.label !== '國家區域');
+    }
     const gridExtraClass = scene.title === '14.骨髓捐贈 / 15.能捨一切諸難捨' ? ' scene-1415-grid'
       : (scene.title === '28.代謝不住' ? ' scene-28-grid' : '');
     // 01/02/03's print title gets its own class so it can be enlarged
@@ -1220,12 +1229,16 @@ function buildScenesHtml(rec, phase){
         // "靜寂清澄志玄虛漠(第一波)" -> "靜寂清澄志玄虛漠" / "(第一波)".
         displayHtml = displayHtml.replace(/(\(第[^)]*波\))$/, '<br>$1');
       }
-      else if (hasValue && (f.label === '位置區域' || f.label === '區域' || f.label === '國家' || f.label === '站/跪')) {
+      else if (hasValue && (f.label === '位置區域' || f.label === '區域' || f.label === '國家' || f.label === '站/跪' || f.label === '代謝不住區域')) {
         classNames.push('value-loc12');
         // 14/15's 區域 values ("中V(大V內側)" / "大V(大V外側)") get a line
         // break before the "(" so they show as two lines - e.g. "中V" then
         // "(大V內側)" - instead of squeezing onto one line.
         displayHtml = displayHtml.replace(/\(/g, '<br>(');
+      }
+      else if (hasValue && f.label === '編號') {
+        // Print-time font-size should match 位置區域/站/跪/區域/波段/最近地標 per request.
+        classNames.push('value-loc12');
       }
       let clickAttr = '';
       let isXYClickable = false;
@@ -1268,6 +1281,24 @@ function buildScenesHtml(rec, phase){
       const cueBullet = '<span style="color:var(--accent)">◦</span> ';
       if (scene.title === '01.序') {
         importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('靈山法會「不散」→ 內轉向圓心').replace(/\n/g, '<br>') + '</span>';
+        importantCueValueClass = '';
+      } else if (scene.title === '36.髻珠喻') {
+        importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('第三次「譬如髻珠」放光明 →拿燈') + '</span>';
+        importantCueValueClass = '';
+      } else if (scene.title === '34.化城喻手札') {
+        const area34Field = scene.fields.find(f => f.label === '區域');
+        const area34 = area34Field ? (area34Field.value || '') : '';
+        const cueLines34 = area34 === '內'
+          ? [
+              '廣行善法「          饒有情」→ 轉向甲',
+              '求法 「   立誓」→ 轉向法師',
+              '願度 「    眾生」→轉向甲'
+            ]
+          : [
+              '廣行善法「          饒有情」→ 轉向甲',
+              '任重「  道遠」→ 轉向法師'
+            ];
+        importantCueHtml = '<span class="value-cue">' + cueLines34.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '04.開經偈') {
         const cueLines04 = ['第二句的彷若實境→拿燈', '再「現」→開綠燈'];
@@ -1652,7 +1683,7 @@ function fitPrintToOnePage(){
   // directly tightens neededScale itself, guaranteed to help regardless of
   // which branch of the min() is binding.
   const OS_PRINT_CHROME_PX = isNarrowViewport ? 55 : 34;
-  const EXTRA_SHRINK = isNarrowViewport ? 1.671504 : 0.7128; // mobile (手機板) body text enlarged further 1.2x; desktop (電腦版) body text shrunk further 0.8x per request
+  const EXTRA_SHRINK = isNarrowViewport ? 4.228846283059202 : 2.5534934726400005; // 1.1x test round: content other than 重要拍點 (cue) enlarged 1.1x via EXTRA_SHRINK bump; .value-cue's own font-size counter-scaled down by /1.1 below to cancel out for records that are NOT one-page-fit capped. For content-heavy/capped records (e.g. 7-68, 1-50) this cancellation does not hold and the cue may render genuinely smaller - this is a known, accepted trade-off for this experimental round.
   // Real browsers/printers routinely can't honor a requested 1mm @page margin
   // exactly - many printer drivers silently enforce a larger minimum
   // non-printable margin, which was causing header/dual/footer to still not
@@ -1661,7 +1692,19 @@ function fitPrintToOnePage(){
   // theoretical page height) bakes in a much bigger real-world safety
   // cushion so header + content + footer reliably fit together.
   const totalPageHeightPx = (210 - 8) * pxPerMm * 0.82; // top+bottom margins are 4mm each now so nothing sits flush against the physical page edge
+  // Measure naturalHeight as if the 重要拍點 toggle were always ON, regardless
+  // of its actual current state. field-cue rows are display:none when the
+  // toggle is off, which shrinks dual.scrollHeight and (via neededScale below)
+  // lets the auto-fit-to-one-page logic pick a BIGGER font when cue is off
+  // than when it's on for the same record - a real, user-visible print font
+  // mismatch between the two toggle states. Forcing the cue-off class off for
+  // just this synchronous measurement keeps the computed scale identical
+  // either way, at the cost of some unused blank space at the bottom of the
+  // page when cue is actually off.
+  const wasCueOffForMeasure = document.body.classList.contains('cue-off');
+  if (wasCueOffForMeasure) document.body.classList.remove('cue-off');
   const naturalHeight = dual.scrollHeight;
+  if (wasCueOffForMeasure) document.body.classList.add('cue-off');
   const BASE_SHRINK = isNarrowViewport ? 0.92 : 0.68; // desktop: kept coming in just 1-2pt short across different Chromium builds even after several small nudges - dropping this more decisively (0.735->0.68) to build real cross-browser headroom instead of chasing a hairline margin every time
   // EXTRA_SHRINK is applied to the *preferred* baseline scale first, then the
   // result is still hard-capped by neededScale (the actual measured content
