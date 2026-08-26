@@ -1400,7 +1400,10 @@ function buildScenesHtml(rec, phase){
     const hideCue13 = scene.title === '13.大船師' && !scene13HasBoat;
     // 11/12、11/14 場的「09.是諸眾生」不顯示重要拍點欄位(僅 11/15 場保留)。
     const hideCue09 = scene.title === '09.是諸眾生' && (currentPerformDate === '11/12' || currentPerformDate === '11/14');
-    if (scene.title !== '22.慈誠隊歌' && scene.title !== '29.功德品開經' && scene.title !== '20.畢業組曲-成長 / 21.畢業組曲-感恩' && !hideCue13 && !hideCue09) {
+    // 11/15 場的「36.髻珠喻(莫三比克)」顯示為「37.仰師德範」時，不顯示重要拍點欄位
+    // (11/12、11/14 這個曲目仍保留原本的重要拍點)。
+    const hideCue36On1115 = scene.title === '36.髻珠喻(莫三比克)' && currentPerformDate === '11/15';
+    if (scene.title !== '22.慈誠隊歌' && scene.title !== '29.功德品開經' && scene.title !== '20.畢業組曲-成長 / 21.畢業組曲-感恩' && !hideCue13 && !hideCue09 && !hideCue36On1115) {
       let importantCueHtml = '';
       let importantCueValueClass = ' value-icon-center';
       const cueBullet = '<span style="color:var(--accent)">◦</span> ';
