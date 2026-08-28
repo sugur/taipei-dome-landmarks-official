@@ -176,7 +176,8 @@
   }
   .phase-tab.active{background:var(--accent); color:#fff; border-color:var(--accent);}
   .print-row{display:flex; justify-content:flex-end; margin-bottom:6px; gap:8px;}
-  .print-row-note{text-align:right; font-size:0.78rem; color:#777; margin-top:-2px; margin-bottom:6px;}
+  .print-btn-hint{text-align:right; font-size:0.8rem; color:#8a7a6d; margin:-3px 0 8px 0;}
+  .print-btn-hint a{color:#8a6d3b; text-decoration:underline; cursor:pointer;}
   .print-btn{
     padding:5px 14px; border-radius:8px; font-size:0.8rem; cursor:pointer;
     border:1px solid var(--line); background:#fff; color:var(--accent); font-weight:600;
@@ -239,7 +240,7 @@
     @page{size:A4 landscape; margin-top:5.0mm; margin-right:6.5mm; margin-bottom:5.0mm; margin-left:6.5mm;}
     *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important;}
     html, body{height:auto !important;}
-    header p, .date-select-box, .search-box, .hint, .print-row, .print-row-note{display:none !important;}
+    header p, .date-select-box, .search-box, .hint, .print-row, .print-btn-hint{display:none !important;}
     .wrap{padding:0 !important; max-width:100% !important;}
     header{margin-bottom:0px !important; padding-top:4px !important;}
     body:not(.cue-off) header .main-title{font-size:2.016mm !important; margin:0 !important; line-height:1.1 !important; display:inline !important; color:#3E2723 !important;}
@@ -283,7 +284,7 @@
     body.cue-off .scene-title{padding:0px 8px 0px 8px !important; font-size:2.9408355550405063rem !important; gap:6px !important;}
     body:not(.cue-off) .scene-title.scene-title-big{font-size:3.73547755403378rem !important; color:#4e342e !important; line-height:1.0 !important; padding-top:0.1mm !important;}
     body.cue-off .scene-title.scene-title-big{font-size:4.519927840380875rem !important; color:#4e342e !important; line-height:1.0 !important; padding-top:0.1mm !important;}
-    body:not(.cue-off) .scene-title.scene-title-bigger{font-size:3.75rem !important; color:#4e342e !important; line-height:1.0 !important; padding-top:0.5px !important; padding-bottom:0px !important;}
+    body:not(.cue-off) .scene-title.scene-title-bigger{font-size:3.65rem !important; color:#4e342e !important; line-height:1.0 !important; padding-top:0.3px !important; padding-bottom:0px !important;}
     body.cue-off .scene-title.scene-title-bigger{font-size:4.971920624418963rem !important; color:#4e342e !important; line-height:1.0 !important; padding-top:2px !important; padding-bottom:2px !important;}
     body:not(.cue-off) .scene-tag{padding:1px 7px !important; font-size:2.838702348838896rem !important; gap:4px !important;}
     body.cue-off .scene-tag{padding:1px 7px !important; font-size:3.122572583722786rem !important; gap:4px !important;}
@@ -2295,7 +2296,7 @@ function render(id){
   let html = '<div class="record-card">';
   const groupClass = 'group-' + rec.group;
   html += '<div class="print-row"><button class="print-btn" onclick="printWithFilename()">下載PDF</button><button class="print-btn" onclick="printWithFilenameDownload2()">下載地標小卡</button></div>';
-  html += '<div class="print-row-note">(小卡使用方式請見「使用說明」)</div>';
+  html += '<div class="print-btn-hint">(小卡使用方式請見「<a onclick="openHelpModal(\'minicard\')">使用說明</a>」)</div>';
   html += '<div class="record-header-row"><div class="phase-tabs-row">' + phaseTabsHtml() + '</div><div class="record-head"><span class="id">' + escapeHtml(rec.id) + '</span><span class="group ' + groupClass + '">' + escapeHtml(rec.group) + '</span></div></div>';
   html += buildScenesHtml(rec, currentPhase);
   html += '</div>';
@@ -2519,6 +2520,18 @@ window.addEventListener('afterprint', () => {
   document.body.classList.remove('dl2-mode');
   removeDl2PortraitPage();
 });
+
+function openHelpModal(tab){
+  const overlay = document.getElementById('helpModalOverlay');
+  if (!overlay) return;
+  overlay.classList.add('open');
+  if (tab) {
+    const tabBtns = overlay.querySelectorAll('.help-modal-tab');
+    const tabContents = overlay.querySelectorAll('.help-modal-tab-content');
+    tabBtns.forEach((b) => b.classList.toggle('active', b.getAttribute('data-help-tab') === tab));
+    tabContents.forEach((c) => c.classList.toggle('active', c.getAttribute('data-help-tab') === tab));
+  }
+}
 
 (function(){
   const btn = document.getElementById('helpBtn');
