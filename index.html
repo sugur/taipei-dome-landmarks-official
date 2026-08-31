@@ -135,6 +135,8 @@
     display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
   }
   .multi-dl2-box-label{color:var(--sub); font-size:0.85rem;}
+  .multi-dl2-box-hint{font-size:0.8rem; color:#8a7a6d; margin-top:2px;}
+  .multi-dl2-box-hint a{color:#8a6d3b; text-decoration:underline; cursor:pointer;}
   input#idInput{
     flex:1; font-size:1.1rem; padding:12px 14px; border:1px solid var(--line);
     border-radius:10px; outline:none;
@@ -618,15 +620,38 @@
       padding:1.5px 2px 1mm 1px !important;
     }
     /* "下載多人地標小卡": up to 4 people's cards on one A4 portrait sheet,
-       2 per row. Each card reuses the exact same per-card markup as the
-       single-card flow (buildDl2CardMarkup(), wrapped in its own
+       one per quadrant, evenly dividing the whole printable page into 4
+       equal areas (was 2-per-row, left-aligned, leaving the right side of
+       the sheet blank - per request, changed to actually fill/quarter the
+       full A4 instead). Each card reuses the exact same per-card markup as
+       the single-card flow (buildDl2CardMarkup(), wrapped in its own
        .dl2-multi-card box here instead of .print-download2 directly) so
        the two features can never visually drift apart - .print-download3
-       itself is just the grid that lays those boxes out. */
+       itself is just the grid that lays those boxes out.
+       200mm/287mm = the full printable content box under
+       applyDl2PortraitPage()'s A4-portrait @page (210mm/297mm page minus
+       its 5mm margin on every side) - explicitly sizing the grid to that
+       (rather than leaving it auto/content-sized) is what makes each of
+       the 4 cells a true quarter of the sheet: 100mm x 143.5mm each.
+       justify-items/align-items:center then centers each (much smaller,
+       fixed 71.99mm-wide, content-height) card within its own quarter,
+       instead of packing all 4 toward one corner - with 4 entries this
+       lands one card per quadrant; with fewer, the grid's normal
+       row-major auto-placement (1st cell top-left, 2nd top-right, 3rd
+       bottom-left) just leaves the remaining quadrant(s) blank. Earlier
+       tried scaling the card itself UP to fill each quadrant (a separate
+       DL2_MULTI_SCALE) instead of centering it at the same size as the
+       single-card - abandoned that after real full-dataset testing showed
+       the tallest real record would have needed the scale reduced so much
+       to avoid overflow/clipping that the card ended up smaller than this
+       simpler centered-at-original-size approach anyway, with none of the
+       clipping risk. */
     body.dl2-multi-mode .print-download3{
       display:grid !important; position:static !important; top:auto !important; left:auto !important;
       visibility:visible !important;
-      grid-template-columns:71.99mm 71.99mm !important; gap:4mm 5mm !important;
+      width:200mm !important; height:287mm !important;
+      grid-template-columns:1fr 1fr !important; grid-template-rows:1fr 1fr !important;
+      justify-items:center !important; align-items:center !important; gap:0 !important;
     }
     body.dl2-multi-mode .dl2-multi-card{
       width:71.99mm !important; box-sizing:border-box !important;
@@ -1113,7 +1138,7 @@
   </div>
 
   <div class="multi-dl2-box">
-    <div class="multi-dl2-box-label">多人地標小卡：可輸入多人身分證，一次列印四張地標小卡</div>
+    <div class="multi-dl2-box-label">多人地標小卡：可輸入多人身分證，一次列印四張地標小卡<div class="multi-dl2-box-hint">(小卡使用方式請見「<a onclick="openHelpModal('minicard')">使用說明</a>」)</div></div>
     <button class="print-btn" onclick="openMultiDl2Modal()">下載多人地標小卡</button>
   </div>
 
@@ -1723,6 +1748,36 @@ function extractDL2Core(scene, fields){
   };
 }
 var DL2_SCALE = 0.2388;
+// Minicard-only title shortenings, per request - these only change what's
+// printed on the compact 地標小卡, never the main app's detail view or the
+// normal (橫式) 下載PDF, which both keep the full original title text via
+// displayTitle()/SCENE_TITLE_OVERRIDES elsewhere. Matched with a leading
+// "(\d+)\." capture rather than a fixed scene number because several of
+// these scene numbers shift by +1 on 11/14 and 11/15 (see
+// SCENE_TITLE_OVERRIDES_BY_DATE's "22.藥草喻" insertion note above) - e.g.
+// "用鼓掌的雙手做環保" prints as "27...." on 11/12 but "28...." on 11/14/15;
+// capturing whatever number is actually there and re-inserting it into the
+// replacement keeps this correct on every date without listing each
+// date's number separately. Applied to each already-split title segment
+// (after the existing "/"-combined-title split and bracket/paren strip),
+// so a combined title's other segments (e.g. "22.藥草喻" tacked on for
+// 11/14/15) are left untouched.
+const DL2_TITLE_TEXT_OVERRIDES = [
+  [/^(\d+)\.生、老、病、死、六度$/, '$1.生老 病死、六度'],
+  [/^(\d+)\.畢業組曲-成長$/, '$1.畢業-成長'],
+  [/^(\d+)\.畢業組曲-感恩$/, '$1.畢業-感恩'],
+  [/^(\d+)\.用鼓掌的雙手做環保$/, '$1...雙手做環保'],
+  [/^(\d+)\.大慈大悲無量義$/, '$1.大慈大悲無量..'],
+  [/^(\d+)\.菜市場的五毛錢$/, '$1.五毛錢'],
+  [/^(\d+)\.能捨一切諸難捨$/, '$1.能捨一切諸...']
+];
+function applyDl2TitleTextOverride(s){
+  for (var i = 0; i < DL2_TITLE_TEXT_OVERRIDES.length; i++) {
+    var rule = DL2_TITLE_TEXT_OVERRIDES[i];
+    if (rule[0].test(s)) return s.replace(rule[0], rule[1]);
+  }
+  return s;
+}
 function buildDl2CardMarkup(rec, printName){
   // Same values as badgeColors/badgeBlueRing inside buildScenesHtml (used
   // there for the same numberBadgeSVG() badge on 05/慈誠隊歌/父母恩重難報經/
@@ -1881,6 +1936,7 @@ function buildDl2CardMarkup(rec, printName){
       // parenthetical text as-is.
       .map(t => t.replace(/\s*[\(（][^\)）]*[\)）]/g, ''))
       .reduce((acc, s) => acc.concat(s.split(/\s*\/\s*/)), [])
+      .map(s => applyDl2TitleTextOverride(s))
       .map(s => escapeHtml(s))
       .join('<br>');
     // Per request, column order is now 地標圖(icon, with 隊形 as a caption
@@ -1968,10 +2024,11 @@ function buildPrintDownload2(rec){
 
 // "下載多人地標小卡": same per-person card markup as buildPrintDownload2()
 // above (via the shared buildDl2CardMarkup()), just up to 4 of them laid
-// out 2-per-row (see .print-download3/.dl2-multi-card CSS) so they print
-// on a single A4 portrait sheet instead of one-per-sheet. entries is an
-// array of up to 4 {rec, name} objects (fewer than 4 just leaves the
-// remaining grid cells empty).
+// out one per quadrant, evenly dividing the whole A4 sheet into 4 equal
+// areas (see .print-download3/.dl2-multi-card CSS) so they print on a
+// single A4 portrait sheet instead of one-per-sheet. entries is an array
+// of up to 4 {rec, name} objects (fewer than 4 just leaves the remaining
+// quadrant(s) empty).
 function buildPrintDownload3(entries){
   var containerEl = document.getElementById('printDownload3');
   containerEl.innerHTML = entries.map(function(e){
