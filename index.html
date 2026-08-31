@@ -1266,19 +1266,30 @@ const STATIC_SCENE_TAGS = {
 
 const SCENE_TITLE_OVERRIDES = {
   '01.序': '01.序 [面向甲, 圓弧在兩腳間]',
-  '02.生、老、病、死、六度': '02.生 [面向甲, 圓弧在兩腳間]、老、病、死、六度[面向乙，腳尖對線]',
+  // 02: shortened per request ("生、老、病、死、六度" -> "生老 病死、六度" -
+  // no 頓號 between 生/老, a space before 病, no 頓號 between 病/死, keeping
+  // 、before 六度). The [面向甲.../面向乙...] direction tags are kept
+  // attached at their ORIGINAL word boundary (甲 right after 生, 乙 covering
+  // everything from 老 onward) rather than moved to follow the new "生老"
+  // grouping, so the actual facing-direction meaning is unchanged - only
+  // the punctuation/spacing of the label itself changed. Worth a quick
+  // double-check against the choreography if "老" was meant to visually
+  // read as still facing 乙 despite now being joined to "生" with no comma.
+  '02.生、老、病、死、六度': '02.生[面向甲, 圓弧在兩腳間]老 病死、六度[面向乙，腳尖對線]',
   '05.扛天下米籮': '05.扛天下米籮 [面甲45°]',
   '06.靜思家風': '06.靜思家風 [面甲45°]',
   '07.點一盞燈': '07.點一盞燈 [正面向甲]',
   '09.是諸眾生': '09.是諸眾生[面演繹方向]',
   '10.地藏經啟航 / 11.船師大船師 / 12.四弘誓願': '10.地藏經啟航[腳尖對線] / 11.船師大船師[腳尖對線] / 12.四弘誓願[腳尖對線]',
-  '13.大船師': '13.大醫王-大船師',
-  '14.骨髓捐贈 / 15.能捨一切諸難捨': '14.骨髓捐贈 / 15.能捨一切諸難捨[腳尖對齊線]',
-  '23.父母恩重難報經 / 24.跪羊圖': '23.父母恩重難報經[45°面向法師-合掌] / 24.跪羊圖[45°面向法師-合掌]',
-  '18.慈大校歌 / 19.小樹啊!': '18.慈大校歌 [面向法師, 圓弧在兩腳間] / 19.小樹啊!',
-  '25.大愛讓世界亮起來 / 26.天空破了洞 / 27.用鼓掌的雙手做環保': '25.大愛讓世界亮起來[面向甲] / 26.天空破了洞[面甲45°] / 27.用鼓掌的雙手做環保[面甲45°]',
+  '13.大船師': '13.大醫王',
+  '14.骨髓捐贈 / 15.能捨一切諸難捨': '14.骨髓捐贈 / 15.能捨一切[腳尖對齊線]',
+  '16.說法品梵唄 / 17.大慈大悲無量義': '16.說法品梵唄 / 17.大慈大悲',
+  '23.父母恩重難報經 / 24.跪羊圖': '23.佛告阿難[45°面向法師-合掌] / 24.跪羊圖[45°面向法師-合掌]',
+  '18.慈大校歌 / 19.小樹啊!': '18.誓願將心 [面向法師, 圓弧在兩腳間] / 19.小樹啊!',
+  '25.大愛讓世界亮起來 / 26.天空破了洞 / 27.用鼓掌的雙手做環保': '25.大愛讓世界亮起來[面向甲] / 26.天空破了洞[面甲45°] / 27.法譬如水[面甲45°]',
   '28.代謝不住': '28.代謝不住[面向甲]',
-  '20.畢業組曲-成長 / 21.畢業組曲-感恩': '20.畢業組曲-成長[面向甲, 圓弧在兩腳間]/ 21.畢業組曲-感恩[面向乙，腳尖對線]'
+  '20.畢業組曲-成長 / 21.畢業組曲-感恩': '20.畢業-成長[面向甲, 圓弧在兩腳間]/ 21.畢業-感恩[面向乙，腳尖對線]',
+  '38.六瑞相': '38.結尾'
 };
 // 11/14、11/15 這兩場的節目單在「20.畢業組曲」之後多了「22.藥草喻」，導致
 // 之後所有場次編號都要往後遞增1號；11/12 場次維持原編號。這裡只覆蓋「顯示用」
@@ -1286,20 +1297,20 @@ const SCENE_TITLE_OVERRIDES = {
 // 查表用的原始鍵值）維持不變，兩場共用同一份 fields 資料。
 const SCENE_TITLE_OVERRIDES_BY_DATE = {
   '20.畢業組曲-成長 / 21.畢業組曲-感恩': {
-    '11/14': '20.畢業組曲-成長[面向甲, 圓弧在兩腳間]/ 21.畢業組曲-感恩[面向乙，腳尖對線]/22.藥草喻',
-    '11/15': '20.畢業組曲-成長[面向甲, 圓弧在兩腳間]/ 21.畢業組曲-感恩[面向乙，腳尖對線]/22.藥草喻'
+    '11/14': '20.畢業-成長[面向甲, 圓弧在兩腳間]/ 21.畢業-感恩[面向乙，腳尖對線]/22.藥草喻',
+    '11/15': '20.畢業-成長[面向甲, 圓弧在兩腳間]/ 21.畢業-感恩[面向乙，腳尖對線]/22.藥草喻'
   },
   '22.慈誠隊歌': {
     '11/14': '23.慈誠隊歌',
     '11/15': '23.慈誠隊歌'
   },
   '23.父母恩重難報經 / 24.跪羊圖': {
-    '11/14': '24.父母恩重難報經[45°面向法師-合掌] / 25.跪羊圖[45°面向法師-合掌]',
-    '11/15': '24.父母恩重難報經[45°面向法師-合掌] / 25.跪羊圖[45°面向法師-合掌]'
+    '11/14': '24.佛告阿難[45°面向法師-合掌] / 25.跪羊圖[45°面向法師-合掌]',
+    '11/15': '24.佛告阿難[45°面向法師-合掌] / 25.跪羊圖[45°面向法師-合掌]'
   },
   '25.大愛讓世界亮起來 / 26.天空破了洞 / 27.用鼓掌的雙手做環保': {
-    '11/14': '26.大愛讓世界亮起來[面向甲] / 27.天空破了洞[面甲45°] / 28.用鼓掌的雙手做環保[面甲45°]',
-    '11/15': '26.大愛讓世界亮起來[面向甲] / 27.天空破了洞[面甲45°] / 28.用鼓掌的雙手做環保[面甲45°]'
+    '11/14': '26.大愛讓世界亮起來[面向甲] / 27.天空破了洞[面甲45°] / 28.法譬如水[面甲45°]',
+    '11/15': '26.大愛讓世界亮起來[面向甲] / 27.天空破了洞[面甲45°] / 28.法譬如水[面甲45°]'
   },
   '28.代謝不住': {
     '11/14': '29.代謝不住[面向甲]',
@@ -1340,8 +1351,8 @@ const SCENE_TITLE_OVERRIDES_BY_DATE = {
     '11/15': '38.第十功德'
   },
   '38.六瑞相': {
-    '11/14': '37.六瑞相',
-    '11/15': '39.六瑞相'
+    '11/14': '37.結尾',
+    '11/15': '39.結尾'
   }
 };
 function displayTitle(title, rec){
@@ -1351,8 +1362,8 @@ function displayTitle(title, rec){
     const scene07 = rec.scenes && rec.scenes.find(s => s.title === '07.點一盞燈');
     const areaF07 = scene07 && scene07.fields.find(f => f.label === '區域');
     const area07 = areaF07 ? areaF07.value : null;
-    if (area07 === 'LOGO下方2') return '08.菜市場的五毛錢 [面向乙45°]';
-    return '08.菜市場的五毛錢 [面向乙]';
+    if (area07 === 'LOGO下方2') return '08.五毛錢 [面向乙45°]';
+    return '08.五毛錢 [面向乙]';
   }
   // 29.功德品開經 的方位提示依組別(A藍/B藍 vs A白/B白)不同，且要跟 11/14、11/15
   // 的場次編號遞增（29→30）疊加，所以編號取自當前日期覆蓋文字的開頭數字，
@@ -1384,7 +1395,7 @@ function titleHtmlWithTags(title, rec){
   t = t.replace(/拿燈/g, '<span style="color:#e91e63;font-weight:700;">拿燈</span>');
   // Mobile-only forced line breaks (hidden on desktop via .mobile-break{display:none}),
   // requested for specific long titles that otherwise wrap awkwardly on narrow screens.
-  t = t.replace('老、病、死、六度', '<br>&nbsp;&nbsp;&nbsp;老、病、死、六度');
+  t = t.replace('老 病死、六度', '<br>&nbsp;&nbsp;&nbsp;老 病死、六度');
   if (title === '25.大愛讓世界亮起來 / 26.天空破了洞 / 27.用鼓掌的雙手做環保' ||
       title === '16.說法品梵唄 / 17.大慈大悲無量義' ||
       title === '18.慈大校歌 / 19.小樹啊!' ||
@@ -1465,14 +1476,25 @@ function waveLampTag(scene, rec){
     // 抓出三個數字，而不是寫死25/26/27。
     const byDateTitles = SCENE_TITLE_OVERRIDES_BY_DATE[scene.title];
     const dateTitleText = (byDateTitles && byDateTitles[currentPerformDate]) || scene.title;
-    const nums = dateTitleText.match(/\d+/g) || ['25', '26', '27'];
-    const n25 = nums[0], n26 = nums[1], n27 = nums[2];
+    // Bug fix: this used to grab EVERY digit run in dateTitleText via
+    // /\d+/g, which on 11/14/11/15 (where the override text also contains
+    // "[面甲45°]" bracket annotations) picked up "45" as nums[2] instead of
+    // the actual 3rd scene number (28) - e.g. "26.大愛讓世界亮起來[面向甲] /
+    // 27.天空破了洞[面甲45°] / 28.法譬如水[面甲45°]" has digit runs
+    // 26,27,45,28,45 in that order, so nums[2] was "45", making this cue
+    // print as "45法譬如水: 開綠燈(口袋)" instead of "28法譬如水: 開綠燈(口袋)".
+    // Fixed by taking only the LEADING number of each " / "-separated
+    // segment instead of every digit run in the whole string.
+    const numSegs = dateTitleText.split(/\s*\/\s*/);
+    const n25 = (numSegs[0] && numSegs[0].match(/^\d+/) || ['25'])[0];
+    const n26 = (numSegs[1] && numSegs[1].match(/^\d+/) || ['26'])[0];
+    const n27 = (numSegs[2] && numSegs[2].match(/^\d+/) || ['27'])[0];
     const midColor = '#3aa655';
     const midText = n26 + '破了洞: 「啊」→開綠燈(口袋)';
     const lines = [
       { text: n25 + '大愛: 開綠燈(拿燈)', color: '#3aa655' },
       { text: midText, color: midColor },
-      { text: n27 + '做環保: 開綠燈(口袋)', color: '#3aa655' }
+      { text: n27 + '法譬如水: 開綠燈(口袋)', color: '#3aa655' }
     ];
     const lineHtml = lines.map(function(l){
       let lt = escapeHtml(l.text);
@@ -1748,36 +1770,6 @@ function extractDL2Core(scene, fields){
   };
 }
 var DL2_SCALE = 0.2388;
-// Minicard-only title shortenings, per request - these only change what's
-// printed on the compact 地標小卡, never the main app's detail view or the
-// normal (橫式) 下載PDF, which both keep the full original title text via
-// displayTitle()/SCENE_TITLE_OVERRIDES elsewhere. Matched with a leading
-// "(\d+)\." capture rather than a fixed scene number because several of
-// these scene numbers shift by +1 on 11/14 and 11/15 (see
-// SCENE_TITLE_OVERRIDES_BY_DATE's "22.藥草喻" insertion note above) - e.g.
-// "用鼓掌的雙手做環保" prints as "27...." on 11/12 but "28...." on 11/14/15;
-// capturing whatever number is actually there and re-inserting it into the
-// replacement keeps this correct on every date without listing each
-// date's number separately. Applied to each already-split title segment
-// (after the existing "/"-combined-title split and bracket/paren strip),
-// so a combined title's other segments (e.g. "22.藥草喻" tacked on for
-// 11/14/15) are left untouched.
-const DL2_TITLE_TEXT_OVERRIDES = [
-  [/^(\d+)\.生、老、病、死、六度$/, '$1.生老 病死、六度'],
-  [/^(\d+)\.畢業組曲-成長$/, '$1.畢業-成長'],
-  [/^(\d+)\.畢業組曲-感恩$/, '$1.畢業-感恩'],
-  [/^(\d+)\.用鼓掌的雙手做環保$/, '$1...雙手做環保'],
-  [/^(\d+)\.大慈大悲無量義$/, '$1.大慈大悲無量..'],
-  [/^(\d+)\.菜市場的五毛錢$/, '$1.五毛錢'],
-  [/^(\d+)\.能捨一切諸難捨$/, '$1.能捨一切諸...']
-];
-function applyDl2TitleTextOverride(s){
-  for (var i = 0; i < DL2_TITLE_TEXT_OVERRIDES.length; i++) {
-    var rule = DL2_TITLE_TEXT_OVERRIDES[i];
-    if (rule[0].test(s)) return s.replace(rule[0], rule[1]);
-  }
-  return s;
-}
 function buildDl2CardMarkup(rec, printName){
   // Same values as badgeColors/badgeBlueRing inside buildScenesHtml (used
   // there for the same numberBadgeSVG() badge on 05/慈誠隊歌/父母恩重難報經/
@@ -1936,7 +1928,6 @@ function buildDl2CardMarkup(rec, printName){
       // parenthetical text as-is.
       .map(t => t.replace(/\s*[\(（][^\)）]*[\)）]/g, ''))
       .reduce((acc, s) => acc.concat(s.split(/\s*\/\s*/)), [])
-      .map(s => applyDl2TitleTextOverride(s))
       .map(s => escapeHtml(s))
       .join('<br>');
     // Per request, column order is now 地標圖(icon, with 隊形 as a caption
