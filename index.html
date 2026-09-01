@@ -250,13 +250,29 @@
   .print-dual-col:first-child{border-right:1px solid var(--line); padding-right:1.2mm;}
   .print-dual-col:last-child{padding-left:1.2mm;}
   .print-dual-col-title{background:var(--accent); color:#fff; text-align:center; font-weight:700; font-size:0.8rem; padding:3px; border-radius:6px; margin-bottom:3px;}
-  .print-dual-footer{display:none;}
+  .print-header-copyright{display:none;}
   @media print{
     @page{size:A4 landscape; margin-top:5.0mm; margin-right:6.5mm; margin-bottom:5.0mm; margin-left:6.5mm;}
     *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important;}
     html, body{height:auto !important;}
     header p, .date-select-box, .search-box, .hint, .print-row, .print-btn-hint, .multi-dl2-box{display:none !important;}
     .wrap{padding:0 !important; max-width:100% !important;}
+    /* Copyright now lives INSIDE .header-top (same flex row as the event
+       title) instead of being positioned relative to .wrap, so it lines up
+       on the exact same visual row as the title text - vertically centered
+       against the row's own height via top:50%/translateY(-50%) rather than
+       a hand-measured pixel offset, so it stays correct even if the title's
+       font-size/line-height changes later. position:relative on .header-top
+       (not .wrap) is what anchors it there; taking it out of flow via
+       position:absolute keeps it from disturbing the flex row's centering
+       of the title itself or the row's own height. */
+    .header-top{position:relative !important;}
+    .print-header-copyright{
+      display:block !important; position:absolute !important; top:50% !important; right:0 !important;
+      left:auto !important; bottom:auto !important; width:auto !important; transform:translateY(-50%) !important;
+      text-align:right !important; color:var(--sub) !important; font-size:1.3rem !important;
+      margin:0 !important; padding:0 !important; box-sizing:border-box !important; line-height:1.2 !important;
+    }
     header{margin-bottom:0px !important; padding-top:4px !important;}
     body:not(.cue-off) header .main-title{font-size:2.016mm !important; margin:0 !important; line-height:1.1 !important; display:inline !important; color:#3E2723 !important;}
     body.cue-off header .main-title{font-size:2.2176mm !important; margin:0 !important; line-height:1.1 !important; display:inline !important; color:#3E2723 !important;}
@@ -265,7 +281,7 @@
     #result{display:none !important;}
     .title-break-always{display:inline !important;}
     .print-dual{
-      display:block !important; position:static !important; top:auto !important; left:auto !important;
+      display:block !important; position:relative !important; top:auto !important; left:auto !important;
       visibility:visible !important; width:auto !important;
       /* No page-break-inside:avoid here on purpose: the fitPrintToOnePage()
          script already shrinks this block's font-size so its natural height
@@ -279,12 +295,12 @@
     }
     .print-phase3{
       /* 行願圖騰 + 開經偈圖騰(依 04.開經偈 編號查表)，強制另起一頁。 */
-      display:block !important; position:static !important; top:auto !important; left:auto !important;
+      display:block !important; position:relative !important; top:auto !important; left:auto !important;
       visibility:visible !important; width:auto !important; page-break-before:always;
     }
     .print-phase4{
       /* 代謝不住圖騰(依 28.代謝不住 編號查表)，強制另起一頁。 */
-      display:block !important; position:static !important; top:auto !important; left:auto !important;
+      display:block !important; position:relative !important; top:auto !important; left:auto !important;
       visibility:visible !important; width:auto !important; page-break-before:always;
     }
     .record-card{box-shadow:none !important; border:none !important; padding:3px !important;}
@@ -338,7 +354,6 @@
     body:not(.cue-off) .landmark-line-bar{width:39.8px !important; height:7.2171px !important; font-size:1.5634612224rem !important; margin-top:0.5px !important; margin-left:auto !important; margin-right:auto !important;}
     body.cue-off .landmark-line-bar{width:39.8px !important; height:7.2171px !important; font-size:1.7198073446400002rem !important; margin-top:0.5px !important; margin-left:auto !important; margin-right:auto !important;}
     footer{display:none !important;}
-    .print-dual-footer{display:none !important;}
     .footer-left{font-size:1.04544rem !important; text-align:right !important; line-height:1 !important;}
     .footer-note{display:none !important;}
     .footer-copyright{font-size:1.8261752610816rem !important;}
@@ -419,7 +434,7 @@
     body:not(.cue-off) .landmark-line-bar{width:21.4384px !important; height:4.4168652px !important; font-size:0.457776rem !important; margin-top:0px !important; margin-left:auto !important; margin-right:auto !important;}
     body.cue-off .landmark-line-bar{width:21.4384px !important; height:4.4168652px !important; font-size:0.5035536rem !important; margin-top:0px !important; margin-left:auto !important; margin-right:auto !important;}
     footer{display:block !important; font-size:0.72rem !important; margin-top:2px !important; padding:0 4mm !important; box-sizing:border-box !important; clear:both !important;}
-    .print-dual-footer{display:none !important;}
+    .print-header-copyright{display:none !important;}
     .footer-left{font-size:0.6rem !important; line-height:1 !important;}
     .footer-note{font-size:0.839808rem !important;}
     .footer-copyright{font-size:0.839808rem !important;}
@@ -592,7 +607,7 @@
      to fall) to be pushed onto extra blank print pages instead of staying
      on the single quarter-page sheet. */
     body.dl2-mode .print-download2{
-      display:block !important; position:static !important; top:auto !important; left:auto !important;
+      display:block !important; position:relative !important; top:auto !important; left:auto !important;
       visibility:visible !important;
       /* Occupy the top-left corner of the (portrait, via
          applyDl2PortraitPage()) A4 page - width narrowed a bit further
@@ -647,7 +662,7 @@
        simpler centered-at-original-size approach anyway, with none of the
        clipping risk. */
     body.dl2-multi-mode .print-download3{
-      display:grid !important; position:static !important; top:auto !important; left:auto !important;
+      display:grid !important; position:relative !important; top:auto !important; left:auto !important;
       visibility:visible !important;
       width:200mm !important; height:287mm !important;
       grid-template-columns:1fr 1fr !important; grid-template-rows:1fr 1fr !important;
@@ -1109,6 +1124,7 @@
         <div class="main-title">2026大巨蛋【無量義  法髓頌】經藏演繹</div>
         <h1>大會版 · 西二· 地標對照查詢系統 v16_0830</h1>
       </div>
+      <div class="print-header-copyright">&copy; 2026 唐偲瑋</div>
     </div>
   </header>
 
@@ -2625,7 +2641,6 @@ function buildPrintDual(rec){
   html += '<div class="print-dual-col"><div class="print-dual-col-title">第一階段 ' + escapeHtml(PHASE_NAMES[0]) + '</div>' + buildScenesHtml(rec, 1) + '</div>';
   html += '<div class="print-dual-col"><div class="print-dual-col-title">第二階段 ' + escapeHtml(PHASE_NAMES[1]) + '</div>' + buildScenesHtml(rec, 2) + '</div>';
   html += '</div>';
-  html += '<div class="print-dual-footer">&copy; 2026 唐偲瑋</div>';
   document.getElementById('printDual').innerHTML = html;
 }
 
@@ -2651,14 +2666,20 @@ function buildPrintPhase3(rec){
     ? '<img src="' + xyEntry.xingyuan + '" alt="行願圖騰" style="max-width:100%; max-height:180mm; width:auto; height:auto; display:block; margin:0 auto;">'
     : '<div class="phase-placeholder">無行願圖騰資料</div>';
   const groupClassP3 = 'group-' + rec.group;
-  let html = '<div class="print-dual-head"><span class="id">' + escapeHtml(rec.id) + '</span>' + (currentPrintName ? ('<span class="id print-name">' + escapeHtml(currentPrintName) + '</span>') : '') + '<span class="group ' + groupClassP3 + '">' + escapeHtml(rec.group) + '</span></div>';
+  let html = PRINT_PAGE_HEADER_HTML;
+  html += '<div class="print-dual-head"><span class="id">' + escapeHtml(rec.id) + '</span>' + (currentPrintName ? ('<span class="id print-name">' + escapeHtml(currentPrintName) + '</span>') : '') + '<span class="group ' + groupClassP3 + '">' + escapeHtml(rec.group) + '</span></div>';
   html += '<div class="print-dual-cols">';
   html += '<div class="print-dual-col"><div class="print-dual-col-title">第三階段 ' + escapeHtml(PHASE_NAMES[2]) + '</div>' + buildScenesHtml(rec, 3) + '</div>';
   html += '<div class="print-dual-col"><div class="print-dual-col-title">行願圖騰</div>' + xyImgHtml + '</div>';
   html += '</div>';
-  html += '<div class="print-dual-footer">&copy; 2026 唐偲瑋</div>';
   document.getElementById('printPhase3').innerHTML = html;
 }
+
+// 第二、三張列印頁比照第一頁，一樣掛上共用的大會標題列（重用 <header> 標籤，
+// 讓桌面/手機版列印的 header 相關 CSS 規則自動套用在這裡，不用另外重寫一份，
+// 也不會因為未來標題文字或字級調整而跟第一頁的標題不同步）。標題本身跟記錄
+// 內容無關，所以是固定字串，不隨 rec 變化。
+const PRINT_PAGE_HEADER_HTML = '<header><div class="header-top"><div class="header-titles"><div class="main-title">2026大巨蛋【無量義  法髓頌】經藏演繹</div><h1>大會版 · 西二· 地標對照查詢系統 v16_0830</h1></div><div class="print-header-copyright">&copy; 2026 唐偲瑋</div></div></header>';
 
 // 第三張列印頁：左欄開經偈圖騰，右欄代謝不住圖騰 —— 跟 v592_網頁版的排法一致。
 function buildPrintPhase4(rec){
@@ -2687,12 +2708,12 @@ function buildPrintPhase4(rec){
     : '<div class="phase-placeholder">無代謝不住圖騰資料</div>';
 
   const groupClassP4 = 'group-' + rec.group;
-  let html = '<div class="print-dual-head"><span class="id">' + escapeHtml(rec.id) + '</span>' + (currentPrintName ? ('<span class="id print-name">' + escapeHtml(currentPrintName) + '</span>') : '') + '<span class="group ' + groupClassP4 + '">' + escapeHtml(rec.group) + '</span></div>';
+  let html = PRINT_PAGE_HEADER_HTML;
+  html += '<div class="print-dual-head"><span class="id">' + escapeHtml(rec.id) + '</span>' + (currentPrintName ? ('<span class="id print-name">' + escapeHtml(currentPrintName) + '</span>') : '') + '<span class="group ' + groupClassP4 + '">' + escapeHtml(rec.group) + '</span></div>';
   html += '<div class="print-dual-cols">';
   html += '<div class="print-dual-col"><div class="print-dual-col-title">開經偈圖騰</div>' + kaijingImgHtml + '</div>';
   html += '<div class="print-dual-col"><div class="print-dual-col-title">代謝不住圖騰</div>' + wasteImgHtml + '</div>';
   html += '</div>';
-  html += '<div class="print-dual-footer">&copy; 2026 唐偲瑋</div>';
   document.getElementById('printPhase4').innerHTML = html;
 }
 
