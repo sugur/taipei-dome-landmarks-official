@@ -808,9 +808,13 @@
       /* Needs to out-specificity the existing "body:not(.cue-off)
          .landmark-line-bar" print rule (which also carries !important)
          earlier in the stylesheet - matching its own "body + 2 classes"
-         specificity via body.dl2-mode instead of just .dl2-icon. */
-      width:17.14mm !important; height:17.14mm !important; margin:0 !important;
-      border-radius:50% !important; font-size:6.28mm !important; line-height:1.1 !important;
+         specificity via body.dl2-mode instead of just .dl2-icon.
+         Per request, matches the v647 build's size exactly: a bar (長條),
+         not a full square/circle - width stays the full 17.14mm to match
+         .dl2-icon img/svg's column width; height set to half of that
+         (8.57mm). */
+      width:17.14mm !important; height:8.57mm !important; margin:0 !important;
+      border-radius:1mm !important; font-size:3.96mm !important; line-height:1.1 !important;
     }
     .dl2-formation{
       font-size:6.28mm !important; color:#000000; font-weight:700; line-height:1.05;
