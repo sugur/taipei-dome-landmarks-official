@@ -803,12 +803,20 @@
        for .landmark-line-bar earlier in the stylesheet is sized for the
        normal (unscaled) print layout, so it's re-sized here to fit this
        column properly. Scaled by the same 1.1x as the icon above (four
-       times now) so it stays visually consistent with it. */
-    body.dl2-mode .dl2-icon .landmark-line-bar{
+       times now) so it stays visually consistent with it.
+       Also applied under body.dl2-multi-mode (下載多人地標小卡): this rule
+       originally only targeted body.dl2-mode (下載地標小卡/單人版), so the
+       04.開經偈 bar in the multi-person card was still falling through to
+       the earlier, unrelated .landmark-line-bar print rule and rendering
+       at the wrong (unscaled) size there even though both modes build the
+       card from the exact same buildDl2CardMarkup() markup. */
+    body.dl2-mode .dl2-icon .landmark-line-bar,
+    body.dl2-multi-mode .dl2-icon .landmark-line-bar{
       /* Needs to out-specificity the existing "body:not(.cue-off)
          .landmark-line-bar" print rule (which also carries !important)
          earlier in the stylesheet - matching its own "body + 2 classes"
-         specificity via body.dl2-mode instead of just .dl2-icon.
+         specificity via body.dl2-mode/body.dl2-multi-mode instead of just
+         .dl2-icon.
          Per request, matches the v647 build's size exactly: a bar (長條),
          not a full square/circle - width stays the full 17.14mm to match
          .dl2-icon img/svg's column width; height set to half of that
@@ -1961,7 +1969,14 @@ function buildDl2CardMarkup(rec, printName){
     // onto 3 - it's the longest of the merged 25/26/27/28 group's stacked
     // segments. Keyed on the raw (pre-override, pre-escape) segment text,
     // same as DL2_TITLE_DISPLAY_OVERRIDE below.
-    const DL2_TITLE_FONT_SIZE_OVERRIDE = { '25.大愛讓世界亮起來': '7.6mm' };
+    // On 11/14 and 11/15, SCENE_TITLE_OVERRIDES_BY_DATE renumbers this same
+    // segment from "25." to "26." (see displayTitle()), so the lookup key
+    // was only ever matching on 11/12 - the other two days fell through to
+    // the full 10.47mm size and overflowed/wrapped onto 3 lines again. Both
+    // 單人小卡 (buildPrintDownload2) and 多人小卡 (buildPrintDownload3) call
+    // this same buildDl2CardMarkup(), so adding the "26." key fixes the
+    // font size for all 3 performance dates in both card modes at once.
+    const DL2_TITLE_FONT_SIZE_OVERRIDE = { '25.大愛讓世界亮起來': '7.6mm', '26.大愛讓世界亮起來': '7.6mm' };
     const titleHtml = (e.titleParts || [e.title])
       .map(t => displayTitle(t, rec).replace(/\s*\[[^\]]*\]/g, ''))
       // Per request, minicard titles also drop any "(...)"/"（...）"
