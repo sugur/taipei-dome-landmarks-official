@@ -1951,6 +1951,13 @@ function buildDl2CardMarkup(rec, printName){
     // normal) instead of ellipsis-truncating, so that manual break is no
     // longer needed to avoid a too-long second line; 六度 now just flows
     // with the rest of the text.
+    // Per request (matching the v647 build), "25.大愛讓世界亮起來" alone
+    // renders at a smaller font-size than the shared .dl2-title-col size
+    // (10.47mm) so it wraps onto 2 lines instead of overflowing/wrapping
+    // onto 3 - it's the longest of the merged 25/26/27/28 group's stacked
+    // segments. Keyed on the raw (pre-override, pre-escape) segment text,
+    // same as DL2_TITLE_DISPLAY_OVERRIDE below.
+    const DL2_TITLE_FONT_SIZE_OVERRIDE = { '25.大愛讓世界亮起來': '7.6mm' };
     const titleHtml = (e.titleParts || [e.title])
       .map(t => displayTitle(t, rec).replace(/\s*\[[^\]]*\]/g, ''))
       // Per request, minicard titles also drop any "(...)"/"（...）"
@@ -1961,8 +1968,11 @@ function buildDl2CardMarkup(rec, printName){
       // parenthetical text as-is.
       .map(t => t.replace(/\s*[\(（][^\)）]*[\)）]/g, ''))
       .reduce((acc, s) => acc.concat(s.split(/\s*\/\s*/)), [])
-      .map(s => applyDl2TitleTextOverride(s))
-      .map(s => escapeHtml(s))
+      .map(s => {
+        const sz = DL2_TITLE_FONT_SIZE_OVERRIDE[s];
+        const displayed = escapeHtml(applyDl2TitleTextOverride(s));
+        return sz ? ('<span style="font-size:' + sz + ';">' + displayed + '</span>') : displayed;
+      })
       .join('<br>');
     // Per request, column order is now 地標圖(icon, with 隊形 as a caption
     // underneath it) → 地標(location) → 標題(title) - title moved from the
