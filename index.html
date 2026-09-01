@@ -2437,7 +2437,7 @@ function buildScenesHtml(rec, phase){
             'OS：人一旦得病，更是「苦啊」! →全體收，白色起立'
           ]},
           { label: '死苦', lines: [
-            'OS：生老病死，實在「苦不堪言」→ 合掌轉面向法師之圓弧線'
+            'OS：生老病死，「生命何義」→ 合掌轉面向法師之圓弧線'
           ]},
           { label: '六度', lines: [
             '再說六度波羅「蜜」 →合掌 ' + (isBlueGroup02 ? '右轉' : '左轉')
@@ -2450,8 +2450,8 @@ function buildScenesHtml(rec, phase){
       } else if (scene.title === '07.點一盞燈') {
         const cueLines = [
           'OS：「三位修女」… →換LOGO隊形，面向甲',
-          'OS：師父我們「需要你」→轉自己演繹方向',
-          '第一個音效噔、噔 → 開黃燈'
+          'OS：師父「我們需要你」→轉自己演繹方向',
+          '如果你們願意幫助我→ 開黃燈'
         ];
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
@@ -2481,7 +2481,7 @@ function buildScenesHtml(rec, phase){
         const VOW12_IDS = ['2-48','1-49','2-49','1-50','2-50','1-51','2-51','1-52','2-52','1-53','2-53','1-54','2-54','1-55','2-55','1-56','2-56','1-57','8-38','7-38','8-39','7-39','8-40','7-40','8-41','7-41','8-42','7-42','8-43','7-43'];
         const isVow12 = VOW12_IDS.indexOf(rec.id) !== -1;
         const vow12Html = isVow12
-          ? (cueBadge('四弘誓願') + '<br>' + cueBullet + cueText('OS：「師父您怎麼說，我怎麼做」→ 上舞台跑位，到位面向甲'))
+          ? (cueBadge('四弘誓願') + '<br>' + cueBullet + cueText('OS：師父您怎麼說，我怎麼「做」→ 上舞台跑位，到位面向甲'))
           : cueBadge('四弘誓願');
         importantCueHtml = '<span class="value-cue">' + vow12Html + '<br>' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
@@ -2496,8 +2496,7 @@ function buildScenesHtml(rec, phase){
               '「每個病人」→ 舞台的船衝上去'
             ]
           : [
-              'OS: 「大醫王」→船跑位 面甲',
-              '從臺灣出發：船右轉向船頭'
+              'OS: 「大醫王」→船跑位'
             ];
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
