@@ -257,21 +257,22 @@
     html, body{height:auto !important;}
     header p, .date-select-box, .search-box, .hint, .print-row, .print-btn-hint, .multi-dl2-box{display:none !important;}
     .wrap{padding:0 !important; max-width:100% !important;}
-    /* Copyright now lives INSIDE .header-top (same flex row as the event
-       title) instead of being positioned relative to .wrap, so it lines up
-       on the exact same visual row as the title text - vertically centered
-       against the row's own height via top:50%/translateY(-50%) rather than
-       a hand-measured pixel offset, so it stays correct even if the title's
-       font-size/line-height changes later. position:relative on .header-top
-       (not .wrap) is what anchors it there; taking it out of flow via
-       position:absolute keeps it from disturbing the flex row's centering
-       of the title itself or the row's own height. */
-    .header-top{position:relative !important;}
+    /* Copyright now lives directly inside the shared <header> element
+       (position:relative on header itself, same anchor used on every
+       printed page's own <header> - page 1's shared one and phase3/4's
+       own JS-built copies via PRINT_PAGE_HEADER_HTML), instead of being
+       nested one level deeper inside .header-top. Anchoring to <header>
+       (not .header-top or .wrap) keeps this badge's top:50%/
+       translateY(-50%) centered against the SAME box on every page,
+       regardless of whether that page's header has a .header-top wrapper
+       around its title row - taking it out of flow via position:absolute
+       keeps it from disturbing the title row's own centering/height. */
+    header{position:relative !important;}
     .print-header-copyright{
       display:block !important; position:absolute !important; top:50% !important; right:0 !important;
       left:auto !important; bottom:auto !important; width:auto !important; transform:translateY(-50%) !important;
       text-align:right !important; color:var(--sub) !important; font-size:1.3rem !important;
-      margin:0 !important; padding:0 !important; box-sizing:border-box !important; line-height:1.2 !important;
+      margin:0 !important; padding:0 !important; box-sizing:border-box !important; line-height:1.3 !important;
     }
     header{margin-bottom:0px !important; padding-top:4px !important;}
     body:not(.cue-off) header .main-title{font-size:2.016mm !important; margin:0 !important; line-height:1.1 !important; display:inline !important; color:#3E2723 !important;}
@@ -941,6 +942,8 @@
             <li>使用大巨蛋演繹段歌詞 OS 內容節錄 2026/09/02</li>
           </ul>
         </li>
+        <li>修正「地標小卡」偶爾會卡在網頁最下方的問題</li>
+        <li>修正列印PDF「07.點一盞燈／08.菜市場的五毛錢／09.是諸眾生」地標含「舞台」時的換行方式，改為自動換行</li>
       </ol>
     </div>
     <hr class="release-sep">
@@ -2656,7 +2659,14 @@ function buildScenesHtml(rec, phase){
       }
       else if (hasValue && f.label.indexOf('最近地標') !== -1) {
         classNames.push('value-landmark');
-        if (displayHtml.indexOf('乙舞台') !== -1) {
+        // 07.點一盞燈／08.菜市場的五毛錢／09.是諸眾生 這三個曲目，只要地標
+        // 值包含「舞台」(不論是「乙舞台」還是「㇠舞台」等寫法)，改用瀏覽器
+        // 原生自動換行 - 不再手動插入固定的括號前換行或強制兩行nowrap，讓
+        // 文字依欄寬自然換行，取代原本「只在括號前換行」的固定規則。
+        const isAutoWrapTarget = ['07.點一盞燈', '08.菜市場的五毛錢', '09.是諸眾生'].indexOf(scene.title) !== -1 && displayHtml.indexOf('舞台') !== -1;
+        if (isAutoWrapTarget) {
+          // 保留 displayHtml 原樣，不插入任何手動 <br>，讓其自然換行。
+        } else if (displayHtml.indexOf('乙舞台') !== -1) {
           // "乙舞台..." landmark text can be long; force exactly two lines
           // (the part before the parenthesis, and the parenthesis itself)
           // with no-wrap on each, so it never fragments mid-character in a
@@ -2970,8 +2980,8 @@ function buildScenesHtml(rec, phase){
           ];
         } else if (['14','12','3','2','4'].indexOf(num) !== -1) {
           cueLines = [
-            '鳩摩羅什演繹→ 換成行願隊形時，雙腳夾線 看甲舞台',
-            'OS：「 翻譯佛法，佛法永傳」→雙腳夾線 看甲舞台',
+            '鳩摩羅什演繹→ 換成行願隊形，雙腳夾線看甲舞台',
+            'OS：「 翻譯佛法，佛法永傳」→雙腳夾線看甲舞台',
             'OS：「西取佛法，佛法永傳」→45°面向乙舞臺',
             'OS：「東傳佛法，佛法永傳」→轉向自己行願面向'
           ];
@@ -3229,12 +3239,40 @@ function fitPrintToOnePage(){
   void document.documentElement.offsetHeight;
 }
 window.addEventListener('beforeprint', fitPrintToOnePage);
-window.addEventListener('afterprint', () => {
+// 'afterprint' 這個 clean-up 動作 (拿掉 dl2-mode/dl2-multi-mode，把地標小卡
+// 藏回離屏位置) 本來只掛在 window 的 'afterprint' 事件上；但 afterprint 在
+// 部分瀏覽器/裝置(尤其行動裝置的「儲存為PDF」分享流程、或使用者直接按
+// Esc/點背景取消列印對話框的情形)不一定會確實觸發，一旦沒觸發，
+// body.dl2-mode/.dl2-multi-mode 就會一直留著，讓「.print-download2/
+// .print-download3{display:block!important; position:relative!important;
+// visibility:visible!important;}」這條規則持續生效，使已經渲染好的地標
+// 小卡卡片留在正常版面裡、顯示在網頁最下方(使用者回報的正是這個現象)。
+// 抽成獨立函式，讓 afterprint 跟下面新增的 matchMedia('print') 監聽都能
+// 呼叫同一份清除邏輯 - matchMedia('print') 直接反映「目前是否處於列印/
+// 列印預覽狀態」，是跟 afterprint 互相獨立的另一個訊號，任一個觸發就清除，
+// 兩個都重複呼叫也沒問題(都是冪等操作)，比只依賴單一事件更保險。
+function cleanupAfterPrint(){
   document.documentElement.style.fontSize = '';
   document.title = ORIGINAL_TITLE;
   document.body.classList.remove('dl2-mode');
   document.body.classList.remove('dl2-multi-mode');
   removeDl2PortraitPage();
+}
+window.addEventListener('afterprint', cleanupAfterPrint);
+if (window.matchMedia) {
+  const printMql = window.matchMedia('print');
+  const onPrintMqlChange = (e) => { if (!e.matches) cleanupAfterPrint(); };
+  if (printMql.addEventListener) printMql.addEventListener('change', onPrintMqlChange);
+  else if (printMql.addListener) printMql.addListener(onPrintMqlChange);
+}
+// 第三層保險：原生列印對話框關閉後，瀏覽器視窗一定會重新拿回焦點(不論使用者
+// 是實際列印還是取消)，這在各家桌面瀏覽器都很穩定，跟 afterprint/matchMedia
+// 是彼此獨立的第三個訊號。只在偵測到 dl2-mode/dl2-multi-mode 還留著(代表前
+// 兩層都沒清除成功)時才呼叫，避免每次視窗一 focus 就無條件重置標題等狀態。
+window.addEventListener('focus', () => {
+  if (document.body.classList.contains('dl2-mode') || document.body.classList.contains('dl2-multi-mode')) {
+    cleanupAfterPrint();
+  }
 });
 
 function openHelpModal(tab){
