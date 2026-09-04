@@ -339,6 +339,10 @@
     .value-logo2-line2{margin-top:0 !important;}
     body:not(.cue-off) .field .value .value-landmark{font-size:5.065166191796292rem !important;}
     body.cue-off .field .value .value-landmark{font-size:5.571682810975922rem !important;}
+    /* 11/15 場 07.點一盞燈／09.是諸眾生 的「XX舞台第N階」片段標記(見
+       buildScenesHtml 裡的 landmark-stage-shrink 說明)，桌面列印時縮小成
+       0.9倍字級 - 只在桌面列印生效，網頁畫面跟手機列印都不受影響。 */
+    .landmark-stage-shrink{font-size:0.9em !important;}
     body:not(.cue-off) .field .value .value-dibiao{font-size:4.22097182649691rem !important;}
     body.cue-off .field .value .value-dibiao{font-size:4.643069009146601rem !important;}
     body:not(.cue-off) .field .value .value-band{font-size:5.065166191796292rem !important;}
@@ -2666,6 +2670,14 @@ function buildScenesHtml(rec, phase){
         const isAutoWrapTarget = ['07.點一盞燈', '08.菜市場的五毛錢', '09.是諸眾生'].indexOf(scene.title) !== -1 && displayHtml.indexOf('舞台') !== -1;
         if (isAutoWrapTarget) {
           // 保留 displayHtml 原樣，不插入任何手動 <br>，讓其自然換行。
+          // 11/15 場，07.點一盞燈／09.是諸眾生 這兩個曲目，如果地標包含「乙
+          // 舞台第N階」或「㇠舞台第N階」(兩種寫法視覺上難以分辨，一併比對)，
+          // 把這個「XX舞台第N階」片段用 .landmark-stage-shrink 包起來，桌面
+          // 列印時縮小成0.9倍字級(見 @media print 裡的規則) - 只影響桌面列
+          // 印畫面，不影響網頁畫面本身或手機列印。
+          if (currentPerformDate === '11/15' && (scene.title === '07.點一盞燈' || scene.title === '09.是諸眾生')) {
+            displayHtml = displayHtml.replace(/([乙㇠]舞台第\d+階)/, '<span class="landmark-stage-shrink">$1</span>');
+          }
         } else if (displayHtml.indexOf('乙舞台') !== -1) {
           // "乙舞台..." landmark text can be long; force exactly two lines
           // (the part before the parenthesis, and the parenthesis itself)
