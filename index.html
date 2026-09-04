@@ -2728,8 +2728,16 @@ function buildScenesHtml(rec, phase){
         // the PDF's own page-title style, instead of just "1號 · 行願/開經偈".
         const xyName = String(f.value).replace(/^\d+\s*/, '').replace(/'/g, "\\'");
         clickAttr = ' onclick="openXYModal(\'' + f.xyGroup + '\',\'' + f.xyPhase + '\',\'' + xyName + '\')"';
-        // Also show "號" in the clickable text itself (e.g. "1 船" -> "1號 船").
-        displayHtml = escapeHtml(String(f.value).replace(/^(\d+)\s*/, '$1號 '));
+        // Also show "號" in the clickable text itself (e.g. "1 船" -> "1號" /
+        // "船" 固定分成兩行)。這個欄位(value-loc12)在列印時欄寬很窄，若讓
+        // "N號 名稱"整串文字自然換行，瀏覽器可能在數字、「號」、名稱中間任意
+        // 斷開，變成三行甚至逐字換行(例如「1」/「號」/「蓮」/「花」/「池」)。
+        // 改為手動固定在「號」後面換行成兩行，並各自加 white-space:nowrap，
+        // 讓「N號」跟名稱(如「蓮花池」)都不會再被拆開，維持兩行。
+        const idMatch = String(f.value).match(/^(\d+)\s*(.*)$/);
+        displayHtml = idMatch
+          ? ('<span style="white-space:nowrap">' + escapeHtml(idMatch[1]) + '號</span><br><span style="white-space:nowrap">' + escapeHtml(idMatch[2]) + '</span>')
+          : escapeHtml(String(f.value));
       }
       else if (hasValue && f.wasteCode && WASTE_IMAGES[f.wasteCode]) {
         isXYClickable = true;
