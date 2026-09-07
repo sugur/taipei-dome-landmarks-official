@@ -748,8 +748,16 @@
        real size - text-align:center on a row it has all to itself is what
        lets it sit truly centered above the sheet without colliding with
        the copyright. */
-    .dl2-top-row{text-align:center; margin-bottom:1.5mm;}
-    .dl2-event-header{font-size:2.1mm; color:#222222; font-weight:700; line-height:1.3;}
+    .dl2-top-row{text-align:center; margin-bottom:1mm;}
+    /* Per request, enlarged from 2.1mm - capped at 2.28mm (not the full
+       2.4mm originally asked for) because this line's width is fixed to
+       match the scaled table below it, and anything from ~2.3mm up wraps
+       onto a 2nd line - that extra line adds height to every card, which
+       on "下載多人地標小卡" (fixed per-row height budget, not auto-sizing
+       like the single-card sheet) pushed many more records over the
+       100mm/row limit and got cut to a 2nd printed page. 2.28mm is the
+       largest size that still measured as a single line across testing. */
+    .dl2-event-header{font-size:2.28mm; color:#222222; font-weight:700; line-height:1.3;}
     .dl2-head{
       /* Plain black bold text ("A白 7-38", or "A白 7-38 名字" when a name
          was entered) per request - deliberately its own class rather than
@@ -757,7 +765,7 @@
          badge styling used by the normal 下載PDF flow). Size matches the
          previous .id header's rendered size (~16mm unscaled) so the
          header doesn't shrink/grow as a side effect of this restyle. */
-      text-align:center; font-weight:700; color:#000000; font-size:9.216mm;
+      text-align:center; font-weight:700; color:#000000; font-size:13.5mm;
       line-height:1.1; margin-bottom:2mm;
     }
     /* 直式（portrait）排版：每個場次一列，由上往下排（01、02、03...），
@@ -778,7 +786,11 @@
     .dl2-col:last-child{padding-left:0; border-left:0.2mm solid #a67c52;}
     .dl2-item{
       display:flex; align-items:center; gap:2.2mm;
-      padding:1.8mm 0.5mm; border-bottom:0.25mm solid #e6e1d8;
+      /* Per request, darkened from the original light beige (#e6e1d8) to
+         the same coffee-brown already used for the card's outer border
+         and the between-column divider, so the horizontal row lines read
+         more clearly against the card's cream background. */
+      padding:1.8mm 0.5mm; border-bottom:0.25mm solid #a67c52;
     }
     /* Column order per request: 標題(title) → 地標圖(icon, 隊形 caption
        underneath it) → 地標(location) - was icon → title+隊形 → 地標 before. */
@@ -792,7 +804,7 @@
          slightly taller - no separate height-cap change needed. */
       flex:1.0187; min-width:0; white-space:normal;
       overflow-wrap:break-word; word-break:break-word;
-      font-weight:700; font-size:10.47mm !important; color:#2f1f1c; line-height:1.2;
+      font-weight:700; font-size:10.5mm !important; color:#2f1f1c; line-height:1.2;
     }
     .dl2-icon-col{
       /* Width is now driven by the 隊形 caption instead of the icon +
@@ -843,10 +855,10 @@
          .dl2-icon img/svg's column width; height set to half of that
          (8.57mm). */
       width:17.14mm !important; height:8.57mm !important; margin:0 !important;
-      border-radius:1mm !important; font-size:3.96mm !important; line-height:1.1 !important;
+      border-radius:1mm !important; font-size:4.5mm !important; line-height:1.1 !important;
     }
     .dl2-formation{
-      font-size:6.28mm !important; color:#000000; font-weight:700; line-height:1.05;
+      font-size:6.4mm !important; color:#000000; font-weight:700; line-height:1.05;
       /* Matches the widened .dl2-icon-col so a 3-character-CJK or "LOGO"
          line fits on one line without a further internal wrap - combined
          with the explicit <br> already inserted after "LOGO"/"五大洲" in
@@ -1334,7 +1346,7 @@ function numberBadgeSVG(id, centerColor, blueRing){
 }
 
 const STATIC_SCENE_TAGS = {
-  '04.開經偈': { text: ' 第二句彷若實境再「現」開綠燈', color: '#3aa655' },
+  '04.開經偈': { text: ' 開綠燈(拿燈)', color: '#3aa655' },
   '14.骨髓捐贈 / 15.能捨一切諸難捨': { lines: ['OS :等九年了→開黃燈(口袋)', '能捨的最後一次「眾生根」後間奏拿燈'], dotLine: 0, color: '#f6c945' },
   '18.慈大校歌 / 19.小樹啊!': { text: ' 開綠燈(拿燈)', color: '#3aa655' },
   '20.畢業組曲-成長 / 21.畢業組曲-感恩': { text: ' 開綠燈(口袋)', color: '#3aa655' },
@@ -1366,7 +1378,7 @@ const SCENE_TITLE_OVERRIDES = {
   '18.慈大校歌 / 19.小樹啊!': '18.誓願將心比心 [面向法師, 圓弧在兩腳間] / 19.小樹啊!',
   '25.大愛讓世界亮起來 / 26.天空破了洞 / 27.用鼓掌的雙手做環保': '25.大愛讓世界亮起來[面向甲] / 26.天空破了洞[面甲45°] / 27.法譬如水[面甲45°]',
   '28.代謝不住': '28.代謝不住[面向甲]',
-  '20.畢業組曲-成長 / 21.畢業組曲-感恩': '20.畢業-成長[面向甲, 圓弧在兩腳間]/ 21.畢業-感恩[面向乙，腳尖對線]'
+  '20.畢業組曲-成長 / 21.畢業組曲-感恩': '20.成長[面向甲, 圓弧在兩腳間]/ 21.感恩[面向乙，腳尖對線]'
 };
 // 11/14、11/15 這兩場的節目單在「20.畢業組曲」之後多了「22.藥草喻」，導致
 // 之後所有場次編號都要往後遞增1號；11/12 場次維持原編號。這裡只覆蓋「顯示用」
@@ -1374,8 +1386,8 @@ const SCENE_TITLE_OVERRIDES = {
 // 查表用的原始鍵值）維持不變，兩場共用同一份 fields 資料。
 const SCENE_TITLE_OVERRIDES_BY_DATE = {
   '20.畢業組曲-成長 / 21.畢業組曲-感恩': {
-    '11/14': '20.畢業-成長[面向甲, 圓弧在兩腳間]/ 21.畢業-感恩[面向乙，腳尖對線]/ 22.藥草喻',
-    '11/15': '20.畢業-成長[面向甲, 圓弧在兩腳間]/ 21.畢業-感恩[面向乙，腳尖對線]/ 22.藥草喻'
+    '11/14': '20.成長[面向甲, 圓弧在兩腳間]/ 21.感恩[面向乙，腳尖對線]/ 22.藥草喻',
+    '11/15': '20.成長[面向甲, 圓弧在兩腳間]/ 21.感恩[面向乙，腳尖對線]/ 22.藥草喻'
   },
   '22.慈誠隊歌': {
     '11/14': '23.慈誠隊歌',
@@ -1409,9 +1421,9 @@ const SCENE_TITLE_OVERRIDES_BY_DATE = {
   // 「32.富中之富」現在三場都有(11/14 地標等於「第二功德」/30.心蓮，11/15
   // 地標等於「心蓮」本身 - 這組場次本來就共用同一份隊形/地標圖/地標資料)。
   '32.富中之富': {
-    '11/12': '30.富中之富',
-    '11/14': '30.富中之富',
-    '11/15': '31.富中之富'
+    '11/12': '30.富中之富A',
+    '11/14': '30.富中之富B',
+    '11/15': '31.富中之富B'
   },
   '31.第三功德': {
     '11/12': '32.第三功德',
@@ -1429,6 +1441,7 @@ const SCENE_TITLE_OVERRIDES_BY_DATE = {
     '11/14': '35.第八功德'
   },
   '35.諸惡道險(黑區)': {
+    '11/12': '35.諸惡道險',
     '11/15': '35.諸惡道險'
   },
   '36.第八功德(莫三比克)': {
@@ -1456,8 +1469,9 @@ const SCENE_TITLE_OVERRIDES_BY_DATE = {
     '11/15': '40.發心立願'
   },
   '41.小行星': {
-    '11/14': '40.小行星',
-    '11/15': '41.小行星'
+    '11/12': '41.慈濟小行星',
+    '11/14': '40.慈濟小行星',
+    '11/15': '41.慈濟小行星'
   },
   '42.祈禱': {
     '11/14': '41.祈禱',
@@ -1570,9 +1584,13 @@ function waveLampTag(scene, rec){
     if (!f || !f.value) return '';
     const m = f.value.match(/第[一二三四五六七八九十㇐]+波/);
     const wave = m ? m[0].replace('㇐','一') : '';
-    const line1Html = '<span class="tag-line">' + escapeHtml('聽到巴利文無量義經') + '<span style="color:#d32f2f">' + escapeHtml('拿燈不開燈') + '</span></span>';
-    const line2 = wave ? (wave + ' 開黃燈') : '開黃燈';
-    return '<span class="scene-tag"><span class="tag-text">' + line1Html + '<span class="tag-line"><span class="dot" style="background:#f6c945"></span><span class="dot-text">' + escapeHtml(line2) + '</span></span></span></span>';
+    // Per request, "聽到巴利文無量義經拿燈不開燈" moved out of this tag and
+    // into the 重要拍點 cue list instead (see importantCueHtml's 01.序
+    // branch below) - this tag now only shows the wave/開黃燈 line, reworded
+    // from "第一波 開黃燈" to "開黃燈(拿燈) : 第一波" per request(原本
+    // "(手上)"後來又改為"(拿燈)")。
+    const line2 = wave ? ('開黃燈(拿燈) : ' + wave) : '開黃燈(拿燈)';
+    return '<span class="scene-tag"><span class="tag-text"><span class="tag-line"><span class="dot" style="background:#f6c945"></span><span class="dot-text">' + escapeHtml(line2) + '</span></span></span></span>';
   }
   if (scene.title === '28.代謝不住' && rec) {
     const isBlue = rec.group === 'A藍' || rec.group === 'B藍';
@@ -1923,16 +1941,67 @@ function computeRemappedFieldsForDL2(scene, rec, xyGroupNum, xyImagesForGroup){
       });
     }
   }
-  // Per request, 39.六瑞相/40.發心立願/41.小行星/42.祈禱 的地標圖(圖示、連帶
-  // 地標線條顏色)要跟01.序完全一樣 - 這四個曲目在原始資料裡統一寫死icon 5
-  // (剛好等於A白的01.序圖示)，但A藍/B白/B藍的01.序其實各自用不同icon
-  // (15/7/20)，導致這三組人的地標圖/線條顏色都對不上01.序。直接抓該筆記錄
-  // 自己的01.序地標圖icon覆蓋過去，四個曲目都套用同一份，不寫死組別對應。
-  if (['39.六瑞相', '40.發心立願', '41.小行星', '42.祈禱'].indexOf(scene.title) !== -1) {
+  // 見 buildScenesHtml() 裡同一個「31.第三功德」(11/15 顯示為「33.第九功德」)
+  // remap 的說明 - 這裡是地標小卡(單人/多人)用的版本，維持跟主畫面一致，做法
+  // 跟上面的 38.第五功德 一樣，只是來源改成「29.開經書」(11/15 顯示為
+  // 「32.開經書」)。這個覆寫也是下面 DL2_MERGE_GROUPS 的
+  // shouldMergeTaiwan1115_3233 判斷「32(29.開經書)跟33(31.第三功德)地標是
+  // 否相同」時所依據的值 - 兩者現在地標永遠相同，所以這組合併會一直成立；
+  // 34~38(33.啟航起)這組不包含31.第三功德，不受這個覆寫影響，仍然依照各自
+  // 天生的地標值判斷是否合併。
+  if (scene.title === '31.第三功德' && currentPerformDate === '11/15') {
+    const scene29For31 = rec.scenesPhase2 && rec.scenesPhase2.find(s => s.title === '29.開經書');
+    const icon29For31 = scene29For31 && scene29For31.fields.find(f => f.label === '地標圖');
+    const loc29For31 = scene29For31 && scene29For31.fields.find(f => f.label === '最近地標(實際位置)');
+    if (icon29For31 || loc29For31) {
+      fields = fields.map(f => {
+        if (f.label === '地標圖' && icon29For31) return Object.assign({}, f, { icon: icon29For31.icon });
+        if (f.label === '最近地標' && loc29For31) return Object.assign({}, f, { value: loc29For31.value });
+        return f;
+      });
+    }
+  }
+  // Per request, 41.小行星/42.祈禱 的地標圖(圖示、連帶地標線條顏色)要跟01.序
+  // 完全一樣 - 這兩個曲目在原始資料裡統一寫死icon 5(剛好等於A白的01.序圖示)，
+  // 但A藍/B白/B藍的01.序其實各自用不同icon(15/7/20)，導致這三組人的地標圖/
+  // 線條顏色都對不上01.序。直接抓該筆記錄自己的01.序地標圖icon覆蓋過去，兩個
+  // 曲目都套用同一份，不寫死組別對應。(39.六瑞相/40.發心立願原本也套用這個
+  // 01.序 icon 規則，後來改成下面套用32.富中之富的規則，見下方新的判斷式。)
+  if (['41.小行星', '42.祈禱'].indexOf(scene.title) !== -1) {
     const scene01ForEnding = rec.scenes && rec.scenes.find(s => s.title === '01.序');
     const icon01ForEnding = scene01ForEnding && scene01ForEnding.fields.find(f => f.label === '地標圖');
     if (icon01ForEnding) {
       fields = fields.map(f => f.label === '地標圖' ? Object.assign({}, f, { icon: icon01ForEnding.icon }) : f);
+    }
+  }
+  // Per request, 39.六瑞相/40.發心立願 的地標圖(圖示)跟地標(最近地標文字值)都
+  // 改成跟32.富中之富一樣 - 32.富中之富在原始資料裡本來就沒有依日期分開的
+  // byDate 覆寫，三個場次都是同一份值，所以這裡直接抓 rec.scenesPhase3 裡的
+  // 32.富中之富欄位覆蓋過去即可，不用額外判斷 currentPerformDate。跟上面
+  // 41.小行星/42.祈禱套用01.序icon的規則彼此獨立、互不影響。
+  if (['39.六瑞相', '40.發心立願'].indexOf(scene.title) !== -1) {
+    const scene32fuForEnding = rec.scenesPhase3 && rec.scenesPhase3.find(s => s.title === '32.富中之富');
+    const icon32fuForEnding = scene32fuForEnding && scene32fuForEnding.fields.find(f => f.label === '地標圖');
+    const loc32fuForEnding = scene32fuForEnding && scene32fuForEnding.fields.find(f => f.label === '最近地標');
+    if (icon32fuForEnding || loc32fuForEnding) {
+      fields = fields.map(f => {
+        if (f.label === '地標圖' && icon32fuForEnding) return Object.assign({}, f, { icon: icon32fuForEnding.icon });
+        if (f.label === '最近地標' && loc32fuForEnding) return Object.assign({}, f, { value: loc32fuForEnding.value });
+        return f;
+      });
+    }
+  }
+  // Per request, 11/12、11/14、11/15場「39.六瑞相」「40.發心立願」的隊形名稱
+  // 改成跟「38.第五功德」一樣(原始資料裡兩者都寫死「圓」，38.第五功德固定是
+  // 「五大洲 無台灣」，全部1035筆記錄皆同、也沒有依日期分開的byDate覆寫，所以
+  // 三場抓的都是同一份來源值) - 11/14場「38.第五功德」顯示為「37.生生世世都在
+  // 菩提中」、11/15場顯示為「38.第十功德」，但這裡比對的是內部原始
+  // scene.title，不受顯示名稱影響。
+  if (['39.六瑞相', '40.發心立願'].indexOf(scene.title) !== -1 && (currentPerformDate === '11/12' || currentPerformDate === '11/14' || currentPerformDate === '11/15')) {
+    const scene38For3940 = rec.scenesPhase3 && rec.scenesPhase3.find(s => s.title === '38.第五功德');
+    const formation38For3940 = scene38For3940 && scene38For3940.fields.find(f => f.label === '隊形');
+    if (formation38For3940) {
+      fields = fields.map(f => f.label === '隊形' ? Object.assign({}, f, { value: formation38For3940.value }) : f);
     }
   }
   return fields;
@@ -2103,12 +2172,34 @@ function buildDl2CardMarkup(rec, printName){
   // 的「32~37合併、38自己一列」不同，這裡"37"已經是最後一個，合併組結束後
   // 不再有多餘的獨立列)。只有11/14+台灣才套用，其他日期或身份不受影響。
   const isTaiwan1114 = currentPerformDate === '11/14' && !isNotTaiwan;
-  // 11/15 場、國家是「台灣」的人，地標小卡改成：30+31(顯示編號)合併一列、
-  // 32自己一列(不放進任何合併組)、33~38合併另一列。11/15這組沒有「34.第六
-  // 功德」(見 DL2_PHASE3_DROPPED_ON_1115)，所以33~38剛好6個曲目全部合併，
-  // 不像11/12版本那樣38要自己留一列。只有11/15+台灣才套用，其他日期或身份
-  // 不受影響。
+  // 11/15 場、國家是「台灣」的人，地標小卡改成三組、各自只在地標相同時才
+  // 合併(跟 shouldMerge0506/shouldMerge1315 同樣的「先比對地標是否相同再
+  // 決定要不要合併」做法，不是無條件合併)：
+  //   30+31(顯示編號，即內部代號「30.心蓮」+「32.富中之富」)
+  //   32+33(顯示編號，即內部代號「29.開經書」+「31.第三功德」- 31.第三功德
+  //     的地標已經在上面 computeRemappedFieldsForDL2 開頭被覆寫成跟29.開經書
+  //     一樣，所以這組地標必定相同、必定合併)
+  //   34~38(顯示編號，即內部代號「33.啟航」到「38.第五功德」共5個曲目，
+  //     11/15這組沒有「34.第六功德」，見 DL2_PHASE3_DROPPED_ON_1115，且不含
+  //     31.第三功德 - 這5個曲目用的是各自天生的地標，不受31.第三功德那個
+  //     覆寫影響)
+  // 只有11/15+台灣才套用，其他日期或身份不受影響。
   const isTaiwan1115 = currentPerformDate === '11/15' && !isNotTaiwan;
+  const entry30For1115 = rawEntries.find(e => e.title === '30.心蓮');
+  const entry32fuFor1115 = rawEntries.find(e => e.title === '32.富中之富');
+  const shouldMergeTaiwan1115_3031 = !!(entry30For1115 && entry32fuFor1115 &&
+    entry30For1115.locationValue && entry32fuFor1115.locationValue &&
+    normWS(entry30For1115.locationValue) === normWS(entry32fuFor1115.locationValue));
+  const entry29kaijingFor1115 = rawEntries.find(e => e.title === '29.開經書');
+  const entry31For1115 = rawEntries.find(e => e.title === '31.第三功德');
+  const shouldMergeTaiwan1115_3233 = !!(entry29kaijingFor1115 && entry31For1115 &&
+    entry29kaijingFor1115.locationValue && entry31For1115.locationValue &&
+    normWS(entry29kaijingFor1115.locationValue) === normWS(entry31For1115.locationValue));
+  const TAIWAN1115_3438_TITLES = ['33.啟航', '35.諸惡道險(黑區)', '36.第八功德(莫三比克)', '37.髻珠喻(莫三比克)', '38.第五功德'];
+  const taiwan1115_3438Entries = TAIWAN1115_3438_TITLES.map(t => rawEntries.find(e => e.title === t)).filter(Boolean);
+  const shouldMergeTaiwan1115_3438 = taiwan1115_3438Entries.length === TAIWAN1115_3438_TITLES.length &&
+    taiwan1115_3438Entries.every(e => e.locationValue) &&
+    taiwan1115_3438Entries.every(e => normWS(e.locationValue) === normWS(taiwan1115_3438Entries[0].locationValue));
   // Per request, 31-34 collapse into a single line-item (same idea as the
   // "/" combined titles - see itemHtml()'s split(' / ') below), reusing
   // whichever of the 4 has a value first since they already share the same
@@ -2131,24 +2222,39 @@ function buildDl2CardMarkup(rec, printName){
     ['25.大愛讓世界亮起來 / 26.天空破了洞 / 27.用鼓掌的雙手做環保', '28.代謝不住'],
     // "29.開經書" 跟 "32.富中之富" 這組合併列，見上面 isNotTaiwan 的說明，
     // 只有不是台灣的人才合併。
-    ...(isNotTaiwan ? [["30.心蓮", "32.富中之富", "29.開經書", "31.第三功德", "33.啟航", "34.第六功德[面觀眾45°]", "35.諸惡道險(黑區)", "36.第八功德(莫三比克)", "37.髻珠喻(莫三比克)", "38.第五功德"]] : []),
+    // 39.六瑞相/40.發心立願 的地標圖/地標/隊形都跟38.第五功德一樣(見上方
+    // computeRemappedFieldsForDL2 的說明)，per request 這兩曲的標題要併入
+    // 38.第五功德所在的那一列，而不是像原本那樣跟41.小行星/42.祈禱合併 -
+    // 所以下面每個涵蓋38的合併組都在陣列最後補上這兩個標題；38原本保持獨立
+    // 一列的情境(isTaiwan1112、isTaiwan1115且3438未合併)則另外補一組
+    // 「38+39+40」。
+    ...(isNotTaiwan ? [["30.心蓮", "32.富中之富", "29.開經書", "31.第三功德", "33.啟航", "34.第六功德[面觀眾45°]", "35.諸惡道險(黑區)", "36.第八功德(莫三比克)", "37.髻珠喻(莫三比克)", "38.第五功德", "39.六瑞相", "40.發心立願"]] : []),
     // 見上面 isTaiwan1112 的說明：11/12場台灣的人，29+30(顯示編號)合併一
-    // 列，31自己一列(不放進任何合併組)，32~37合併另一列，38自己一列。
+    // 列，31自己一列(不放進任何合併組)，32~37合併另一列，38+39+40合併另一
+    // 列(38原本自己一列，現在併入39/40)。
     ...(isTaiwan1112 ? [["30.心蓮", "32.富中之富"]] : []),
     ...(isTaiwan1112 ? [["31.第三功德", "33.啟航", "34.第六功德[面觀眾45°]", "35.諸惡道險(黑區)", "36.第八功德(莫三比克)", "37.髻珠喻(莫三比克)"]] : []),
-    // 見上面 isTaiwan1114 的說明：11/14場台灣的人，30+31(顯示編號)合併一
-    // 列，32自己一列(不放進任何合併組)，33~37合併另一列(11/14這組本來就
-    // 到37為止，沒有多餘的38獨立列)。
-    ...(isTaiwan1114 ? [["32.富中之富", "29.開經書"]] : []),
-    ...(isTaiwan1114 ? [["31.第三功德", "33.啟航", "34.第六功德[面觀眾45°]", "37.髻珠喻(莫三比克)", "38.第五功德"]] : []),
-    // 見上面 isTaiwan1115 的說明：11/15場台灣的人，30+31(顯示編號)合併一
-    // 列，32自己一列(不放進任何合併組)，33~38合併另一列。
-    ...(isTaiwan1115 ? [["30.心蓮", "32.富中之富"]] : []),
-    ...(isTaiwan1115 ? [["31.第三功德", "33.啟航", "35.諸惡道險(黑區)", "36.第八功德(莫三比克)", "37.髻珠喻(莫三比克)", "38.第五功德"]] : []),
-    // 「39.六瑞相」之後新增的結尾三曲（發心立願/小行星/祈禱）跟六瑞相共用同一
-    // 個隊形/地標圖/地標(地標同結尾)，所以合併成同一列 - 每天(11/12、11/14、
-    // 11/15)都有這四個曲目，不像上面的開經書只限 11/12，故不用依日期切換。
-    ["39.六瑞相", "40.發心立願", "41.小行星", "42.祈禱"]
+    ...(isTaiwan1112 ? [["38.第五功德", "39.六瑞相", "40.發心立願"]] : []),
+    // 見上面 isTaiwan1114 的說明：11/14場台灣的人，per request改成30(內部
+    // 32.富中之富)自己一列、31(內部29.開經書)自己一列(都不放進任何合併組)，
+    // 32~39(內部30.心蓮、31.第三功德、33.啟航、34.第六功德[面觀眾45°]、
+    // 37.髻珠喻(莫三比克)、38.第五功德、39.六瑞相、40.發心立願)合併另一列
+    // (原本30.心蓮是自己一列、32.富中之富跟29.開經書合併一列，這裡改成
+    // 30.心蓮併進33~40那組、32.富中之富跟29.開經書各自獨立)。
+    ...(isTaiwan1114 ? [["30.心蓮", "31.第三功德", "33.啟航", "34.第六功德[面觀眾45°]", "37.髻珠喻(莫三比克)", "38.第五功德", "39.六瑞相", "40.發心立願"]] : []),
+    // 見上面 isTaiwan1115 的說明：11/15場台灣的人，30+31(即「30.心蓮」+
+    // 「32.富中之富」)、32+33(即「29.開經書」+「31.第三功德」)、34~38 這三
+    // 組都只在地標相同時才合併；39/40 一律併入38所在的那一列(不論34~38那組
+    // 有沒有合併成功)。
+    ...(isTaiwan1115 && shouldMergeTaiwan1115_3031 ? [["30.心蓮", "32.富中之富"]] : []),
+    ...(isTaiwan1115 && shouldMergeTaiwan1115_3233 ? [["29.開經書", "31.第三功德"]] : []),
+    ...(isTaiwan1115 && shouldMergeTaiwan1115_3438 ? [TAIWAN1115_3438_TITLES.concat(["39.六瑞相", "40.發心立願"])] : []),
+    ...(isTaiwan1115 && !shouldMergeTaiwan1115_3438 ? [["38.第五功德", "39.六瑞相", "40.發心立願"]] : []),
+    // 41.小行星/42.祈禱 單獨合併成同一列，地標圖跟01.序一樣、地標(最近地標)
+    // 用41.小行星自己天生的值(未被remap過) - 見上方 mergeDl2Entries 的
+    // locationValue規則：取陣列中第一個有值的parts，所以41排在42前面即可
+    // 確保用41自己的地標，不會被39/40那組(地標已改成32.富中之富的值)影響。
+    ["41.小行星", "42.祈禱"]
   ];
   function mergeDl2Entries(list, groups){
     let result = list.slice();
@@ -2179,21 +2285,16 @@ function buildDl2CardMarkup(rec, printName){
     return result;
   }
   const entries = mergeDl2Entries(rawEntries, DL2_MERGE_GROUPS);
-  // 「39.六瑞相/40.發心立願/41.小行星/42.祈禱」合併後的這一列，地標小卡上
-  // 不顯示疊在一起的4個曲目編號，直接顯示「結尾」這個統稱 - 只覆寫
-  // titleParts(下面 titleHtml 渲染標題用的欄位)，icon/地標/隊形等其餘欄位
-  // 仍然是合併後的原值，不受影響。
-  const endingEntry = entries.find(e => e.title === '39.六瑞相 / 40.發心立願 / 41.小行星 / 42.祈禱');
+  // 「41.小行星/42.祈禱」合併後的這一列(39.六瑞相/40.發心立願已經改成併入
+  // 38.第五功德那一列，見上面 DL2_MERGE_GROUPS 的說明)，地標小卡上不顯示
+  // 疊在一起的2個曲目編號，原本(39/40/41/42還沒拆開時)直接顯示「結尾」這個
+  // 統稱，後來per request改成「小行星 & 祈禱」(不帶編號) - 只覆寫
+  // titleParts(下面titleHtml渲染標題用的欄位)，icon/地標/隊形等其餘欄位仍
+  // 然是合併後的原值，不受影響。
+  const endingEntry = entries.find(e => e.title === '41.小行星 / 42.祈禱');
   if (endingEntry) {
-    // Per request, "結尾" 這個顯示名稱要帶編號 - 沿用「39.六瑞相」在當天
-    // (SCENE_TITLE_OVERRIDES_BY_DATE)的顯示編號(11/12→39、11/14→38、
-    // 11/15→39)，直接組成「39.結尾」這種字串放進 titleParts；因為這個字串
-    // 本身不在任何 override 表裡，itemHtml 呼叫 displayTitle() 時會原樣通過。
-    const scene39Display = displayTitle('39.六瑞相', rec);
-    const endingNumMatch = scene39Display.match(/^(\d+)\./);
-    endingEntry.titleParts = [endingNumMatch ? (endingNumMatch[1] + '.結尾') : '結尾'];
+    endingEntry.titleParts = ['小行星 & 祈禱'];
   }
-
   // 13/14/15 stay in the left column per request, instead of always
   // splitting the two columns dead-even - find where "14.骨髓捐贈..." ends
   // up (it's a fixed position in the scene sequence, same for every
@@ -2244,7 +2345,14 @@ function buildDl2CardMarkup(rec, printName){
       const breakAt = stageMatch.index + stageMatch[0].length;
       const before = locRaw.slice(0, breakAt);
       const after = locRaw.slice(breakAt);
-      locHtml = escapeHtml(before) + (after ? '<br>' + escapeHtml(after) : '');
+      // Per request, "乙舞台第N階"/"㇠舞台第N階" (紧接著"第X階") 這種不再強制
+      // 在「舞台」後面換行，改成交給CSS自動換行；只有「乙舞台」/「㇠舞台」
+      // 後面接的不是「第N階」(例如直接接座標、或「東」方向)才維持原本「舞台」
+      // 後面強制換行的規則。
+      const isStageFloor = /^第\d+階/.test(after);
+      locHtml = isStageFloor
+        ? escapeHtml(locRaw)
+        : escapeHtml(before) + (after ? '<br>' + escapeHtml(after) : '');
     } else {
       locHtml = escapeHtml(locRaw);
     }
@@ -2331,7 +2439,7 @@ function buildDl2CardMarkup(rec, printName){
   // without the two overlapping. Built OUTSIDE dl2-scale-wrap (assembled
   // separately below, as topRowHtml) so the font-size is the real/final
   // size and isn't shrunk by that wrap's transform:scale(), per request.
-  const topRowHtml = '<div class="dl2-top-row"><div class="dl2-event-header">2026大巨蛋【無量義  法髓頌】經藏演繹 \u00b7 ' + escapeHtml(currentPerformDate) + ' \u5834 \u00b7 \u5730\u6a19\u55ae v17_0903</div></div>';
+  const topRowHtml = '<div class="dl2-top-row"><div class="dl2-event-header">2026【無量義  法髓頌】經藏演繹 \u00b7 ' + escapeHtml(currentPerformDate) + ' \u5834 \u00b7 \u5730\u6a19\u55ae v17_0903</div></div>';
   let html = '<div class="dl2-head">' + escapeHtml(dl2HeadText) + '</div>';
   html += '<div class="dl2-table">' + rows.map(colHtml).join('') + '</div>';
   // Wrapped in a fixed-width (289mm, same as the other print blocks) scale
@@ -2621,13 +2729,54 @@ function buildScenesHtml(rec, phase){
         });
       }
     }
-    // 見 computeRemappedFieldsForDL2() 裡同一個 39/40/41/42 地標圖remap的
-    // 說明 - 這裡是主畫面用的版本，維持跟地標小卡一致。
-    if (['39.六瑞相', '40.發心立願', '41.小行星', '42.祈禱'].indexOf(scene.title) !== -1) {
+    // 11/15場「31.第三功德」(顯示為「33.第九功德」)的地標圖跟地標，比照上面
+    // 38.第五功德的做法，改成跟「29.開經書」(顯示為「32.開經書」)一樣 - 只換
+    // 「地標圖」的圖示跟「最近地標」的文字值，其餘欄位不受影響，也不影響
+    // 11/12、11/14 兩場的 31.第三功德(顯示分別為「32.第三功德」/「33.第七
+    // 功德」)。
+    if (scene.title === '31.第三功德' && currentPerformDate === '11/15') {
+      const scene29For31 = rec.scenesPhase2 && rec.scenesPhase2.find(s => s.title === '29.開經書');
+      const icon29For31 = scene29For31 && scene29For31.fields.find(f => f.label === '地標圖');
+      const loc29For31 = scene29For31 && scene29For31.fields.find(f => f.label === '最近地標(實際位置)');
+      if (icon29For31 || loc29For31) {
+        fields = fields.map(f => {
+          if (f.label === '地標圖' && icon29For31) return Object.assign({}, f, { icon: icon29For31.icon });
+          if (f.label === '最近地標' && loc29For31) return Object.assign({}, f, { value: loc29For31.value });
+          return f;
+        });
+      }
+    }
+    // 見 computeRemappedFieldsForDL2() 裡同一個 41/42 地標圖remap的說明 - 這裡
+    // 是主畫面用的版本，維持跟地標小卡一致。
+    if (['41.小行星', '42.祈禱'].indexOf(scene.title) !== -1) {
       const scene01ForEnding = rec.scenes && rec.scenes.find(s => s.title === '01.序');
       const icon01ForEnding = scene01ForEnding && scene01ForEnding.fields.find(f => f.label === '地標圖');
       if (icon01ForEnding) {
         fields = fields.map(f => f.label === '地標圖' ? Object.assign({}, f, { icon: icon01ForEnding.icon }) : f);
+      }
+    }
+    // 見 computeRemappedFieldsForDL2() 裡同一個 39/40 套用32.富中之富地標圖/
+    // 地標remap的說明 - 這裡是主畫面用的版本，維持跟地標小卡一致。
+    if (['39.六瑞相', '40.發心立願'].indexOf(scene.title) !== -1) {
+      const scene32fuForEnding = rec.scenesPhase3 && rec.scenesPhase3.find(s => s.title === '32.富中之富');
+      const icon32fuForEnding = scene32fuForEnding && scene32fuForEnding.fields.find(f => f.label === '地標圖');
+      const loc32fuForEnding = scene32fuForEnding && scene32fuForEnding.fields.find(f => f.label === '最近地標');
+      if (icon32fuForEnding || loc32fuForEnding) {
+        fields = fields.map(f => {
+          if (f.label === '地標圖' && icon32fuForEnding) return Object.assign({}, f, { icon: icon32fuForEnding.icon });
+          if (f.label === '最近地標' && loc32fuForEnding) return Object.assign({}, f, { value: loc32fuForEnding.value });
+          return f;
+        });
+      }
+    }
+    // 見 computeRemappedFieldsForDL2() 裡同一個 11/12、11/14、11/15場39/40套用
+    // 38.第五功德隊形名稱remap的說明 - 這裡是主畫面用的版本，維持跟地標小卡
+    // 一致。
+    if (['39.六瑞相', '40.發心立願'].indexOf(scene.title) !== -1 && (currentPerformDate === '11/12' || currentPerformDate === '11/14' || currentPerformDate === '11/15')) {
+      const scene38For3940 = rec.scenesPhase3 && rec.scenesPhase3.find(s => s.title === '38.第五功德');
+      const formation38For3940 = scene38For3940 && scene38For3940.fields.find(f => f.label === '隊形');
+      if (formation38For3940) {
+        fields = fields.map(f => f.label === '隊形' ? Object.assign({}, f, { value: formation38For3940.value }) : f);
       }
     }
     const gridExtraClass = scene.title === '14.骨髓捐贈 / 15.能捨一切諸難捨' ? ' scene-1415-grid'
@@ -2769,7 +2918,12 @@ function buildScenesHtml(rec, phase){
       let importantCueValueClass = ' value-icon-center';
       const cueBullet = '<span style="color:var(--accent)">◦</span> ';
       if (scene.title === '01.序') {
-        importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('靈山法會「不散」→ 內轉向圓心').replace(/\n/g, '<br>') + '</span>';
+        // Per request, "聽到巴利文無量義經拿燈不開燈" moved here from the
+        // scene's waveLampTag() hint tag (see that function) - kept as its
+        // own hand-built line (rather than going through cueText()) so the
+        // "拿燈不開燈" warning keeps its red highlight, same as before.
+        const waveLampCueHtml = escapeHtml('聽到巴利文無量義經') + '<span style="color:#d32f2f">' + escapeHtml('拿燈不開燈') + '</span>';
+        importantCueHtml = '<span class="value-cue">' + cueBullet + waveLampCueHtml + '<br>' + cueBullet + cueText('靈山法會「不散」→ 內轉向乙圓心').replace(/\n/g, '<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '37.髻珠喻(莫三比克)') {
         importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('第三次「譬如髻珠」放光明 →拿燈') + '</span>';
@@ -2790,8 +2944,13 @@ function buildScenesHtml(rec, phase){
         importantCueHtml = '<span class="value-cue">' + cueLines34.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '04.開經偈') {
-        const cueLines04 = ['第二句的彷若實境→拿燈', '再「現」→開綠燈'];
-        importantCueHtml = '<span class="value-cue">' + cueLines04.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
+        const cue04Line1 = '「千百」億劫以來→合掌';
+        // Per request, 「現」跟「開綠燈」改成綠字 - hand-built (not run
+        // through cueText()) so those two pieces can use the same green
+        // (#3aa655) as the other "開綠燈" scene tags elsewhere, while
+        // 「彷若實境」keeps the normal cueText() red quote-highlight.
+        const cue04Line2Html = escapeHtml('第二句的') + '<span style="color:#e53935">' + escapeHtml('「彷若實境」') + '</span>' + escapeHtml('再') + '<span style="color:#3aa655">' + escapeHtml('「現」') + '</span>' + escapeHtml('→拿燈 ') + '<span style="color:#3aa655">' + escapeHtml('開綠燈') + '</span>';
+        importantCueHtml = '<span class="value-cue">' + cueBullet + cueText(cue04Line1) + '<br>' + cueBullet + cue04Line2Html + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '05.扛天下米籮') {
         importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('第二次世界大戰→ 換扛天下米籮隊形') + '</span>';
@@ -2810,20 +2969,20 @@ function buildScenesHtml(rec, phase){
         const isBlueGroup02 = rec.group === 'A藍' || rec.group === 'B藍';
         const cueGroups = [
           { label: '生苦', lines: [
-            'OS：「你將來要繼承王位」→內轉向圓心'
+            'OS：你將來要「繼承王位」→內轉向乙圓心'
           ]},
           { label: '老苦', lines: [
             'OS：老～「苦啊」→ 回正'
           ]},
           { label: '病苦', lines: [
-            'OS：病～「苦啊」→ 全體收回正'
+            'OS：病～「苦啊」→ 回正'
           ]},
           { label: '死苦', lines: [
-            'OS：「生命何義」→ 合掌轉面向法師之圓弧線',
+            'OS：「生命何義」→ 合掌轉向法師 腳夾圓弧線',
             '「夜深人靜」離宮殿→合掌 內轉向圓心'
           ]},
           { label: '六度', lines: [
-            '再說六度波羅「蜜」 →合掌 ' + (isBlueGroup02 ? '右轉' : '左轉')
+            '再說六度波羅蜜 ...OS :「行六度」→合掌 ' + (isBlueGroup02 ? '右轉' : '左轉')
           ]}
         ];
         importantCueHtml = '<span class="value-cue">' + cueGroups.map(g =>
@@ -2834,7 +2993,7 @@ function buildScenesHtml(rec, phase){
         const area07Cue = (fields.find(f => f.label === '區域') || {}).value || '';
         const cueLines = [
           'OS：「三位修女」… →換LOGO隊形，面向甲',
-          'OS：師父「我們需要你」→轉自己演繹方向',
+          'OS：師父「我們需要你」→合掌 轉演繹方向',
           '「如果你們願意幫助我」→ 開黃燈'
         ];
         if (area07Cue === '蓮蓬內-浪') cueLines.push('音效「噔」→坐跪抬頭');
@@ -2842,7 +3001,7 @@ function buildScenesHtml(rec, phase){
         importantCueValueClass = '';
       } else if (scene.title === '08.菜市場的五毛錢') {
         const cueLines = [
-          '「救拔苦難」→ 大聲喊，喊完手放，千手回位'
+          '「救拔苦難」→ 喊完手放，千手回位'
         ];
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
@@ -2850,7 +3009,7 @@ function buildScenesHtml(rec, phase){
         const areaField9 = fields.find(f => f.label === '區域');
         const hasLotus9 = !!(areaField9 && areaField9.value && areaField9.value.indexOf('蓮蓬') !== -1);
         const cueLines = [
-          hasLotus9 ? 'OS:「菩薩所緣」，緣苦眾生→LOGO上舞台，轉向演繹面向。' : 'OS:「菩薩所緣」，緣苦眾生→轉向演繹面向。',
+          hasLotus9 ? 'OS:「菩薩所緣」→LOGO上舞台，轉向演繹面向' : 'OS:「菩薩所緣」，緣苦眾生→轉向演繹面向。',
           '一起為「天下」→開燈'
         ];
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
@@ -2866,7 +3025,7 @@ function buildScenesHtml(rec, phase){
         const VOW12_IDS = ['2-48','1-49','2-49','1-50','2-50','1-51','2-51','1-52','2-52','1-53','2-53','1-54','2-54','1-55','2-55','1-56','2-56','1-57','8-38','7-38','8-39','7-39','8-40','7-40','8-41','7-41','8-42','7-42','8-43','7-43'];
         const isVow12 = VOW12_IDS.indexOf(rec.id) !== -1;
         const vow12Html = isVow12
-          ? (cueBadge('四弘誓願') + '<br>' + cueBullet + cueText('OS：師父您怎麼說，我怎麼「做」→ 上舞台跑位，面向甲'))
+          ? (cueBadge('四弘誓願') + '<br>' + cueBullet + cueText('OS：我們怎麼「做」→ 上舞台跑位'))
           : cueBadge('四弘誓願');
         importantCueHtml = '<span class="value-cue">' + vow12Html + '<br>' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
@@ -2905,7 +3064,7 @@ function buildScenesHtml(rec, phase){
           cap2Lines = ['間奏 : 轉2甲舞台 轉2觀眾'].concat(cap2Lines);
         }
         const cap1Lines = [
-          ' 那個人「就是你」→ 講完轉面向甲，兩腳夾線'
+          ' 那個人「就是你」→ 轉向甲，兩腳夾線'
         ];
         importantCueHtml = '<span class="value-cue">' +
           cueBadge('骨捐') + '<br>' + cap1Lines.map(l => cueBullet + cueText(l)).join('<br>') +
@@ -2994,23 +3153,23 @@ function buildScenesHtml(rec, phase){
         if (num === '1') {
           cueLines = [
             '鳩摩羅什演繹→ 換行願隊形，先壓縮在第三、二、一階、平地 ，雙腳夾線 看甲舞台',
-            'OS:「 翻譯佛法，佛法永傳」→ 雙腳夾線看甲舞台',
-            'OS：「西取佛法，佛法永傳」→45°面向乙圓心',
+            'OS:「 翻譯佛法 佛法永傳」→ 雙腳夾線看甲舞台',
+            'OS：「西取佛法 佛法永傳」→45°面向乙圓心',
             '「 不至日本」 → 衝上去到位直接面法師'
           ];
         } else if (['14','12','3','2','4'].indexOf(num) !== -1) {
           cueLines = [
             '鳩摩羅什演繹→ 換成行願隊形，雙腳夾線看甲舞台',
-            'OS:「 翻譯佛法，佛法永傳」→雙腳夾線看甲舞台',
-            'OS：「西取佛法，佛法永傳」→45°面向乙舞臺',
-            'OS：「東傳佛法，佛法永傳」→轉向自己行願面向'
+            'OS:「 翻譯佛法 佛法永傳」→雙腳夾線看甲舞台',
+            'OS：「西取佛法 佛法永傳」→45°面向乙舞臺',
+            'OS：「東傳佛法 佛法永傳」→轉向自己行願面向'
           ];
         } else {
           cueLines = [
             '鳩摩羅什演繹→ 換成行願隊形時，兩腳夾線 看甲舞台',
-            'OS：「 翻譯佛法，佛法永傳」→兩腳夾線 看甲舞台',
-            'OS：「西取佛法，佛法永傳」→腳尖頂線 面乙',
-            'OS：「東傳佛法，佛法永傳」→轉面向自己行願面向'
+            'OS：「 翻譯佛法 佛法永傳」→兩腳夾線 看甲舞台',
+            'OS：「西取佛法 佛法永傳」→腳尖頂線 面乙',
+            'OS：「東傳佛法 佛法永傳」→轉面向自己行願面向'
           ];
         }
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
