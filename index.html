@@ -1376,9 +1376,9 @@ const SCENE_TITLE_OVERRIDES = {
   '06.靜思家風': '06.靜思家風 [面甲45°]',
   '07.點一盞燈': '07.點一盞燈 [正面向甲]',
   '09.是諸眾生': '09.是諸眾生[面演繹方向]',
-  '10.地藏經啟航 / 11.船師大船師 / 12.四弘誓願': '10.地藏經啟航[腳尖對線] / 11.船師大船師[腳尖對線] / 12.四弘誓願[腳尖對線]',
+  '10.地藏經啟航 / 11.船師大船師 / 12.四弘誓願': '10.地藏經啟航[腳尖對線] / 11.四弘誓願[腳尖對線] / 12.船師大船師[腳尖對線]',
   '13.大船師': '13.大醫王',
-  '14.骨髓捐贈 / 15.能捨一切諸難捨': '14.骨髓捐贈 / 15.能捨一切[腳尖對齊線]',
+  '14.骨髓捐贈 / 15.能捨一切諸難捨': '14.骨髓捐贈[腳尖對齊線] / 15.能捨一切[腳尖對齊線]',
   '16.說法品梵唄 / 17.大慈大悲無量義': '16.梵唄 / 17.大慈大悲',
   '23.父母恩重難報經 / 24.跪羊圖': '23.佛告阿難[向甲45°] / 24.跪羊圖[45°面向法師-合掌]',
   '18.慈大校歌 / 19.小樹啊!': '18.誓願將心比心 [面向法師, 圓弧在兩腳間] / 19.小樹啊!',
@@ -2276,16 +2276,24 @@ function buildDl2CardMarkup(rec, printName){
   // 排除掉34的版本，不能直接用上面完整12個標題的 join(' / ')，否則會找不到
   // (11/12這組12個標題全部都存在，可以直接用上面那個)。
   const ISNOTTAIWAN_2940_TITLES_1115 = ISNOTTAIWAN_2940_TITLES.filter(t => t !== '34.第六功德[面觀眾45°]');
-  // Per request(11/14限定)：不是台灣的人原本29~40整組合併成一列，11/14場
-  // 改成拆成兩列：前段(顯示編號30~34)隊形強制顯示「五大洲」，後段(顯示編號
-  // 35~39，11/14這組本來就沒有35.諸惡道險(黑區)、36.第八功德(莫三比克))維持
-  // 預設規則(取第一個有值的part)不強制覆寫。11/12、11/15 場不受影響，仍然
-  // 整組合併成同一列(用上面的 ISNOTTAIWAN_2940_TITLES)。這兩個陣列已經按照
-  // reorderPhase3WithKaijing1114() 的11/14專用自然順序(富中之富→開經書→
-  // 心蓮→第三功德→啟航→...)排列，下面 mergeDl2Entries 後查找合併結果時可以
-  // 直接用 .join(' / ') 對應，不需要額外重新排序。
+  // Per request(11/14限定，原本先拆成「30~34隊形五大洲」+「35~39另一列」兩
+  // 列，後來per request改回合併成單一整列「30~39」，隊形統一顯示「五大洲」，
+  // 並新增「地標要相同才合併」的保險判斷 - 目前全部990筆不是台灣的記錄裡
+  // 29.開經書都跟32.富中之富/30.心蓮/31.第三功德/33.啟航地標相同，所以現階段
+  // 這個條件恆成立，加這個判斷純粹是保險，避免未來資料異動時錯誤合併)。
+  // 11/14這組本來就沒有35.諸惡道險(黑區)、36.第八功德(莫三比克)這兩個曲目，
+  // 下面已經先濾掉，避免 mergeDl2Entries 後查找合併結果的 join(' / ') 字串對
+  // 不起來。這個陣列已經按照 reorderPhase3WithKaijing1114() 的11/14專用自然
+  // 順序(富中之富→開經書→心蓮→第三功德→啟航→...)排列，可以直接用
+  // .join(' / ') 對應。
   const ISNOTTAIWAN_3034_1114_TITLES = ["32.富中之富", "29.開經書", "30.心蓮", "31.第三功德", "33.啟航"];
-  const ISNOTTAIWAN_3539_1114_TITLES = ["34.第六功德[面觀眾45°]", "35.諸惡道險(黑區)", "36.第八功德(莫三比克)", "37.髻珠喻(莫三比克)", "38.第五功德", "39.六瑞相", "40.發心立願"];
+  const ISNOTTAIWAN_3539_1114_TITLES = ["34.第六功德[面觀眾45°]", "37.髻珠喻(莫三比克)", "38.第五功德", "39.六瑞相", "40.發心立願"];
+  const ISNOTTAIWAN_3040_1114_TITLES = ISNOTTAIWAN_3034_1114_TITLES.concat(ISNOTTAIWAN_3539_1114_TITLES);
+  const entry29For1114Check = rawEntries.find(e => e.title === '29.開經書');
+  const entry32fuFor1114Check = rawEntries.find(e => e.title === '32.富中之富');
+  const shouldMergeNotTaiwan1114 = !!(entry29For1114Check && entry32fuFor1114Check &&
+    entry29For1114Check.locationValue && entry32fuFor1114Check.locationValue &&
+    stripLocParen0789(entry29For1114Check.locationValue) === stripLocParen0789(entry32fuFor1114Check.locationValue));
   const taiwan1115_3438Entries = TAIWAN1115_3438_TITLES.map(t => rawEntries.find(e => e.title === t)).filter(Boolean);
   const shouldMergeTaiwan1115_3438 = taiwan1115_3438Entries.length === TAIWAN1115_3438_TITLES.length &&
     taiwan1115_3438Entries.every(e => e.locationValue) &&
@@ -2324,11 +2332,11 @@ function buildDl2CardMarkup(rec, printName){
     // 一列的情境(isTaiwan1115且3438未合併)則另外補一組「38+39+40」；
     // isTaiwan1112(11/12場台灣的人)後來per request改成38自己獨立、39+40
     // 合併另一列，見下面 isTaiwan1112 那一段的說明。
-    // 見上面 ISNOTTAIWAN_3034_1114_TITLES/ISNOTTAIWAN_3539_1114_TITLES 的
-    // 說明：11/14場不是台灣的人拆成兩組合併，其他場次(11/12、11/15)維持整組
-    // 一起合併。
+    // 見上面 ISNOTTAIWAN_3040_1114_TITLES/shouldMergeNotTaiwan1114 的說明：
+    // 11/14場不是台灣的人，30~39(顯示編號)地標相同時合併成單一整列；其他場次
+    // (11/12、11/15)維持整組一起合併(無條件)。
     ...(isNotTaiwan && currentPerformDate !== '11/14' ? [ISNOTTAIWAN_2940_TITLES] : []),
-    ...(isNotTaiwan && currentPerformDate === '11/14' ? [ISNOTTAIWAN_3034_1114_TITLES, ISNOTTAIWAN_3539_1114_TITLES] : []),
+    ...(isNotTaiwan && currentPerformDate === '11/14' && shouldMergeNotTaiwan1114 ? [ISNOTTAIWAN_3040_1114_TITLES] : []),
     // 見上面 isTaiwan1112 的說明：11/12場台灣的人，29+30(顯示編號)合併一
     // 列，31自己一列(不放進任何合併組)，32~37合併另一列。
     ...(isTaiwan1112 ? [["30.心蓮", "32.富中之富"]] : []),
@@ -2410,8 +2418,8 @@ function buildDl2CardMarkup(rec, printName){
   // Per request(11/12、11/15場)：29~40(不是台灣的人)合併後的那一列，隊形
   // 統一顯示為「五大洲」，同樣不採用預設規則(那樣會顯示合併組裡第一個有值
   // 曲目自己天生的隊形值，例如「圓」，跟這個合併規則想呈現的「五大洲」意義
-  // 不符)。11/14場這組已經拆成兩列(見下面 ISNOTTAIWAN_3034_1114_TITLES 的
-  // 覆寫)，不會走到這裡；11/15場少了「34.第六功德[面觀眾45°]」這個曲目，
+  // 不符)。11/14場這組(30~39)有自己另外的覆寫(見下面 currentPerformDate
+  // === '11/14' 那一段)；11/15場少了「34.第六功德[面觀眾45°]」這個曲目，
   // 查找時要用上面的 ISNOTTAIWAN_2940_TITLES_1115(已排除34)，否則
   // join(' / ') 出來的字串會找不到對應的合併列。
   if ((currentPerformDate === '11/12' || currentPerformDate === '11/15') && isNotTaiwan) {
@@ -2421,13 +2429,13 @@ function buildDl2CardMarkup(rec, printName){
       entry2940Merged.formationValue = '五大洲';
     }
   }
-  // Per request(目前僅限11/14場)：上面拆分出來的「30~34」(不是台灣的人)合併
-  // 列，隊形統一顯示為「五大洲」，同樣不採用預設規則。後段「35~39」那一列
-  // 沒有被要求覆寫，維持預設規則(取第一個有值的part)。
+  // Per request(目前僅限11/14場)：上面「30~39」(不是台灣的人)合併後的那一
+  // 列，隊形統一顯示為「五大洲」，同樣不採用預設規則(那樣會顯示合併組裡第一
+  // 個有值曲目自己天生的隊形值)。
   if (currentPerformDate === '11/14' && isNotTaiwan) {
-    const entry3034Merged = entries.find(e => e.title === ISNOTTAIWAN_3034_1114_TITLES.join(' / '));
-    if (entry3034Merged) {
-      entry3034Merged.formationValue = '五大洲';
+    const entry3040Merged = entries.find(e => e.title === ISNOTTAIWAN_3040_1114_TITLES.join(' / '));
+    if (entry3040Merged) {
+      entry3040Merged.formationValue = '五大洲';
     }
   }
   // 13/14/15 stay in the left column per request, instead of always
