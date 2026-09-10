@@ -339,10 +339,6 @@
     .value-logo2-line2{margin-top:0 !important;}
     body:not(.cue-off) .field .value .value-landmark{font-size:5.065166191796292rem !important;}
     body.cue-off .field .value .value-landmark{font-size:5.571682810975922rem !important;}
-    /* 11/15 場 07.點一盞燈／09.是諸眾生 的「XX舞台第N階」片段標記(見
-       buildScenesHtml 裡的 landmark-stage-shrink 說明)，桌面列印時縮小成
-       0.9倍字級 - 只在桌面列印生效，網頁畫面跟手機列印都不受影響。 */
-    .landmark-stage-shrink{font-size:0.9em !important;}
     body:not(.cue-off) .field .value .value-dibiao{font-size:4.22097182649691rem !important;}
     body.cue-off .field .value .value-dibiao{font-size:4.643069009146601rem !important;}
     body:not(.cue-off) .field .value .value-band{font-size:5.065166191796292rem !important;}
@@ -1384,7 +1380,25 @@ const SCENE_TITLE_OVERRIDES = {
   '18.慈大校歌 / 19.小樹啊!': '18.誓願將心比心 [面向法師, 圓弧在兩腳間] / 19.小樹啊!',
   '25.大愛讓世界亮起來 / 26.天空破了洞 / 27.用鼓掌的雙手做環保': '25.大愛讓世界亮起來[面向甲] / 26.天空破了洞[面甲45°] / 27.法譬如水[面甲45°]',
   '28.代謝不住': '28.代謝不住[面向甲]',
-  '20.畢業組曲-成長 / 21.畢業組曲-感恩': '20.成長[面向甲, 圓弧在兩腳間]/ 21.感恩[面向乙，腳尖對線]'
+  '20.畢業組曲-成長 / 21.畢業組曲-感恩': '20.成長[面向甲, 圓弧在兩腳間]/ 21.感恩[面向乙，腳尖對線]',
+  // Per request(11/12限定)：主畫面/一般PDF把「34.第六功德[面觀眾45°]」跟
+  // 「35.諸惡道險(黑區)」合併成同一張場次卡片(見 buildScenesHtml 裡
+  // currentPerformDate === '11/12' 那段的合併處理) - 兩者全部1035筆記錄的
+  // 隊形/地標圖/最近地標欄位本來就完全相同，所以合併後只顯示一份欄位資料，
+  // 標題疊兩行；35這裡故意不加[面觀眾45°]括號(跟34共用同一張卡片，方向提示
+  // 已經在34那行標示過了)。這個key只會在11/12出現(合併動作本身就是11/12
+  // 限定)，放在不分日期的固定字串表也不會影響其他場次。
+  '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)': '34.第六功德[面觀眾45°] / 35.諸惡道險',
+  // Per request(11/14限定)：主畫面/一般PDF把「34.第六功德[面觀眾45°]」(該日顯示
+  // 為「35.第八功德」)跟「37.髻珠喻(莫三比克)」(該日顯示為「36.髻珠喻(辛巴威)
+  // [面觀眾45°]」)合併成同一張場次卡片，兩者全部1035筆記錄的隊形/地標圖/最近
+  // 地標欄位完全相同。這個key只在11/14出現。
+  '34.第六功德[面觀眾45°] / 37.髻珠喻(莫三比克)': '35.第八功德 / 36.髻珠喻(辛巴威)[面觀眾45°]',
+  // Per request(11/15限定)：主畫面/一般PDF把「33.啟航」(該日顯示為「34.若入世
+  // 城」)跟「35.諸惡道險(黑區)」(該日顯示為「35.諸惡道險」)合併成同一張場次
+  // 卡片，兩者全部1035筆記錄的隊形/地標圖/最近地標欄位完全相同。這個key只在
+  // 11/15出現。
+  '33.啟航 / 35.諸惡道險(黑區)': '34.若入世城 / 35.諸惡道險'
 };
 // 11/14、11/15 這兩場的節目單在「20.畢業組曲」之後多了「22.藥草喻」，導致
 // 之後所有場次編號都要往後遞增1號；11/12 場次維持原編號。這裡只覆蓋「顯示用」
@@ -1518,6 +1532,15 @@ function displayTitle(title, rec){
     const isBlue33 = rec.group === 'A藍' || rec.group === 'B藍';
     return isBlue33 ? '33.啟航[面甲45°]' : '33.啟航[面觀眾45°]';
   }
+  // Per request(11/12限定)：主畫面/一般PDF把「31.第三功德」跟「33.啟航」
+  // 合併成同一張場次卡片(見 buildScenesHtml 裡 currentPerformDate === '11/12'
+  // 那段的合併處理)，顯示文字沿用各自原本的規則直接組合 - 33.啟航仍然依組別
+  // 不同顯示[面甲45°]或[面觀眾45°]，所以這裡不能像34/35那組直接放進固定字串
+  // 表(SCENE_TITLE_OVERRIDES)，要另外判斷。
+  if (title === '31.第三功德 / 33.啟航' && currentPerformDate === '11/12' && rec) {
+    const isBlue33 = rec.group === 'A藍' || rec.group === 'B藍';
+    return '32.第三功德[面觀眾45°] / ' + (isBlue33 ? '33.啟航[面甲45°]' : '33.啟航[面觀眾45°]');
+  }
   if (dateOverride) return dateOverride;
   return SCENE_TITLE_OVERRIDES[title] || title;
 }
@@ -1582,7 +1605,11 @@ function titleHtmlWithTags(title, rec){
       title === '23.父母恩重難報經 / 24.跪羊圖' ||
       title === '10.地藏經啟航 / 11.船師大船師 / 12.四弘誓願' ||
       title === '20.畢業組曲-成長 / 21.畢業組曲-感恩' ||
-      title === '14.骨髓捐贈 / 15.能捨一切諸難捨') {
+      title === '14.骨髓捐贈 / 15.能捨一切諸難捨' ||
+      title === '31.第三功德 / 33.啟航' ||
+      title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)' ||
+      title === '34.第六功德[面觀眾45°] / 37.髻珠喻(莫三比克)' ||
+      title === '33.啟航 / 35.諸惡道險(黑區)') {
     // Per request, EVERY combined-scene title now breaks onto separate
     // lines on BOTH mobile and desktop screen display (not just mobile),
     // with the "/" separator itself removed and replaced by the line break
@@ -2726,13 +2753,65 @@ function buildScenesHtml(rec, phase){
   // 排序完後還要再濾掉這一項；11/12 場不受影響。
   const PHASE3_DROPPED_ON_1114 = ['35.諸惡道險(黑區)', '36.第八功德(莫三比克)'];
   const PHASE3_DROPPED_ON_1115 = ['34.第六功德[面觀眾45°]'];
+  // Per request(11/12限定)：主畫面/一般PDF把「31.第三功德」跟「33.啟航」合併
+  // 成同一張場次卡片、「34.第六功德[面觀眾45°]」跟「35.諸惡道險(黑區)」合併
+  // 成另一張卡片。已驗證全部1035筆記錄裡這兩組各自的隊形/地標圖/最近地標欄
+  // 位完全相同，所以直接沿用31、34自己的fields，只把標題改成合併後的兩行
+  // (見 SCENE_TITLE_OVERRIDES 跟 displayTitle() 裡對應的兩個新key)，並把33、
+  // 35原本獨立的卡片從清單中移除，避免同一份資料重複顯示兩次。只影響11/12
+  // 場，11/14、11/15不受影響。
+  function mergePhase3ScenesFor1112(scenes){
+    const result = [];
+    scenes.forEach(s => {
+      if (s.title === '33.啟航' || s.title === '35.諸惡道險(黑區)') return;
+      if (s.title === '31.第三功德') {
+        result.push(Object.assign({}, s, { title: '31.第三功德 / 33.啟航' }));
+      } else if (s.title === '34.第六功德[面觀眾45°]') {
+        result.push(Object.assign({}, s, { title: '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)' }));
+      } else {
+        result.push(s);
+      }
+    });
+    return result;
+  }
+  // Per request(11/14限定)：把「34.第六功德[面觀眾45°]」(顯示「35.第八功德」)
+  // 跟「37.髻珠喻(莫三比克)」(顯示「36.髻珠喻(辛巴威)[面觀眾45°]」)合併成同一
+  // 張卡片，並把37原本獨立的卡片從清單中移除；37原本的重要拍點已在
+  // importantCueHtml裡新增合併後title的對應分支，不會遺失。
+  function mergePhase3ScenesFor1114(scenes){
+    const result = [];
+    scenes.forEach(s => {
+      if (s.title === '37.髻珠喻(莫三比克)') return;
+      if (s.title === '34.第六功德[面觀眾45°]') {
+        result.push(Object.assign({}, s, { title: '34.第六功德[面觀眾45°] / 37.髻珠喻(莫三比克)' }));
+      } else {
+        result.push(s);
+      }
+    });
+    return result;
+  }
+  // Per request(11/15限定)：把「33.啟航」(顯示「34.若入世城」)跟「35.諸惡道險
+  // (黑區)」(顯示「35.諸惡道險」)合併成同一張卡片，並把35原本獨立的卡片從清
+  // 單中移除。
+  function mergePhase3ScenesFor1115(scenes){
+    const result = [];
+    scenes.forEach(s => {
+      if (s.title === '35.諸惡道險(黑區)') return;
+      if (s.title === '33.啟航') {
+        result.push(Object.assign({}, s, { title: '33.啟航 / 35.諸惡道險(黑區)' }));
+      } else {
+        result.push(s);
+      }
+    });
+    return result;
+  }
   const scenesToShow = phase === 1 ? rec.scenes : (phase === 2 ? (
       rec.scenesPhase2 ? rec.scenesPhase2.filter(s => s.title !== '29.開經書') : null
     ) :
     (phase === 3 ? (
-      currentPerformDate === '11/12' ? reorderPhase3WithKaijing1112(rec) :
-      currentPerformDate === '11/15' ? reorderPhase3WithKaijing1112(rec).filter(s => PHASE3_DROPPED_ON_1115.indexOf(s.title) === -1) :
-      currentPerformDate === '11/14' ? (rec.scenesPhase3 ? reorderPhase3WithKaijing1114(rec).filter(s => PHASE3_DROPPED_ON_1114.indexOf(s.title) === -1) : null) :
+      currentPerformDate === '11/12' ? mergePhase3ScenesFor1112(reorderPhase3WithKaijing1112(rec)) :
+      currentPerformDate === '11/15' ? mergePhase3ScenesFor1115(reorderPhase3WithKaijing1112(rec).filter(s => PHASE3_DROPPED_ON_1115.indexOf(s.title) === -1)) :
+      currentPerformDate === '11/14' ? (rec.scenesPhase3 ? mergePhase3ScenesFor1114(reorderPhase3WithKaijing1114(rec).filter(s => PHASE3_DROPPED_ON_1114.indexOf(s.title) === -1)) : null) :
       null
     ) : null));
 
@@ -2980,27 +3059,20 @@ function buildScenesHtml(rec, phase){
       }
       else if (hasValue && f.label.indexOf('最近地標') !== -1) {
         classNames.push('value-landmark');
-        // 07.點一盞燈／08.菜市場的五毛錢／09.是諸眾生 這三個曲目，只要地標
-        // 值包含「舞台」(不論是「乙舞台」還是「㇠舞台」等寫法)，改用瀏覽器
-        // 原生自動換行 - 不再手動插入固定的括號前換行或強制兩行nowrap，讓
-        // 文字依欄寬自然換行，取代原本「只在括號前換行」的固定規則。
-        const isAutoWrapTarget = ['07.點一盞燈', '08.菜市場的五毛錢', '09.是諸眾生'].indexOf(scene.title) !== -1 && displayHtml.indexOf('舞台') !== -1;
+        // 任何曲目，只要「最近地標」值包含「舞台」(不論是「乙舞台」還是
+        // 「㇠舞台」等寫法)，一律改用瀏覽器原生自動換行 - 不再手動插入固定
+        // 的括號前換行、不再強制切成兩行nowrap，也不再有「XX舞台第N階」桌面
+        // 列印縮小字級的規則(原本只在11/15場07.點一盞燈／09.是諸眾生生效，
+        // 現在整個移除)。「乙舞台」/「㇠舞台」(兩種寫法視覺相似但是不同字，
+        // 一併比對) 不分曲目一律改成瀏覽器自動換行；07.點一盞燈／08.菜市場的
+        // 五毛錢／09.是諸眾生這三個曲目維持原本「只要含『舞台』(不限乙/㇠)
+        // 就自動換行」的規則不變；其他曲目若地標值只是單純「舞台」但不是
+        // 「乙舞台」/「㇠舞台」(例如03.行願／04.開經偈／13.大船師／06.靜思
+        // 家風的部分記錄)，不受此次修改影響，仍維持原本「括號前換行」規則。
+        const isAutoWrapTarget = (['07.點一盞燈', '08.菜市場的五毛錢', '09.是諸眾生'].indexOf(scene.title) !== -1 && displayHtml.indexOf('舞台') !== -1) ||
+          /[乙㇠]舞台/.test(displayHtml);
         if (isAutoWrapTarget) {
           // 保留 displayHtml 原樣，不插入任何手動 <br>，讓其自然換行。
-          // 11/15 場，07.點一盞燈／09.是諸眾生 這兩個曲目，如果地標包含「乙
-          // 舞台第N階」或「㇠舞台第N階」(兩種寫法視覺上難以分辨，一併比對)，
-          // 把這個「XX舞台第N階」片段用 .landmark-stage-shrink 包起來，桌面
-          // 列印時縮小成0.9倍字級(見 @media print 裡的規則) - 只影響桌面列
-          // 印畫面，不影響網頁畫面本身或手機列印。
-          if (currentPerformDate === '11/15' && (scene.title === '07.點一盞燈' || scene.title === '09.是諸眾生')) {
-            displayHtml = displayHtml.replace(/([乙㇠]舞台第\d+階)/, '<span class="landmark-stage-shrink">$1</span>');
-          }
-        } else if (displayHtml.indexOf('乙舞台') !== -1) {
-          // "乙舞台..." landmark text can be long; force exactly two lines
-          // (the part before the parenthesis, and the parenthesis itself)
-          // with no-wrap on each, so it never fragments mid-character in a
-          // narrow column.
-          displayHtml = displayHtml.replace(/^(.*?)(\([^)]*\))$/, '<span style="white-space:nowrap;font-size:0.8em">$1</span><br><span style="white-space:nowrap;font-size:0.8em">$2</span>');
         } else {
           // Break onto a new line before any "(" so the more precise
           // coordinate in parentheses (e.g. "3-44 (3.1-44.2)") doesn't get
@@ -3094,6 +3166,13 @@ function buildScenesHtml(rec, phase){
         importantCueHtml = '<span class="value-cue">' + cueBullet + waveLampCueHtml + '<br>' + cueBullet + cueText('靈山法會「不散」→ 內轉向乙圓心').replace(/\n/g, '<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '37.髻珠喻(莫三比克)') {
+        importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('第三次「譬如髻珠」放光明 →拿燈') + '</span>';
+        importantCueValueClass = '';
+      } else if (scene.title === '34.第六功德[面觀眾45°] / 37.髻珠喻(莫三比克)') {
+        // Per request(11/14限定)：這是「34.第六功德[面觀眾45°]」跟
+        // 「37.髻珠喻(莫三比克)」合併後的卡片(見 buildScenesHtml 裡
+        // currentPerformDate === '11/14' 那段的合併處理)，沿用原本37自己獨立
+        // 顯示時的重要拍點內容，避免合併後遺失這則拍點。
         importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('第三次「譬如髻珠」放光明 →拿燈') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '34.化城喻手札') {
