@@ -597,16 +597,35 @@
     body.dl2-mode .print-dual, body.dl2-mode .print-phase3, body.dl2-mode .print-phase4, body.dl2-mode .print-download3{display:none !important;}
     body.dl2-multi-mode .print-dual, body.dl2-multi-mode .print-phase3, body.dl2-multi-mode .print-phase4, body.dl2-multi-mode .print-download2{display:none !important;}
   }
-  /* Moved out of @media print (but still applies during print too, since
-     nothing here is print-only) so this geometry is already correct BEFORE
-     window.print() is called - buildPrintDownload2() measures scrollHeight
-     synchronously right after building the HTML, well before print media
-     activates, so if these rules were print-gated that measurement would
-     see completely different (unscaled, unwrapped) layout and compute a
-     wildly wrong collapsed height for .dl2-scale-outer - this caused the
-     14./15. row (and everything below wherever the wrong height happened
-     to fall) to be pushed onto extra blank print pages instead of staying
-     on the single quarter-page sheet. */
+  /* Per report, "下載地標小卡"/"下載多人地標小卡" would flash the mini-card(s)
+     near the bottom of the live page for a moment (up to the 3s
+     waitForPrintImages() wait, see doPrintDownload2WithName()/
+     doPrintMultiDl2()) BEFORE the print dialog actually opened, because
+     these two rules used to apply unconditionally (not just while actually
+     printing) as soon as body.dl2-mode/.dl2-multi-mode was added - which
+     happens right after buildPrintDownload2()/buildPrintDownload3() have
+     already built+measured the card(s), well before window.print() runs.
+     Moved these two rules back INTO @media print to fix that: now the
+     on-screen page always keeps .print-download2/.print-download3 in their
+     off-screen idle state (position:absolute; top:-99999px; visibility:
+     hidden - see that rule above) the whole time body.dl2-mode/
+     .dl2-multi-mode is present, and only the actual print rendering
+     (once @media print activates) repositions/reveals them.
+     This is safe for the scrollHeight-collapse concern that originally
+     justified moving these OUT of @media print: collapseDl2ScaleHeight()
+     reads dl2ScaleWrapEl.scrollHeight synchronously inside
+     buildPrintDownload2()/buildPrintDownload3(), which both run BEFORE
+     body.dl2-mode/.dl2-multi-mode is even added (see call order in
+     doPrintDownload2WithName()/doPrintMultiDl2()) - so that measurement
+     was always reading the off-screen idle-state layout above (still
+     display:block, just off-screen/hidden, which is enough to keep
+     scrollHeight accurate) regardless of whether these two rules lived
+     inside or outside @media print. Only the eventual print rendering
+     itself needs position:relative/visible, and @media print supplies
+     that correctly once printing actually starts, fully re-laying out the
+     page under the print media query (the -99999px offset from the idle
+     state does not carry over/clip anything at print time). */
+  @media print{
     body.dl2-mode .print-download2{
       display:block !important; position:relative !important; top:auto !important; left:auto !important;
       visibility:visible !important;
@@ -667,18 +686,31 @@
        real record would have needed the scale reduced so much to avoid
        overflow/clipping that the card ended up smaller than this simpler
        centered-at-original-size approach anyway, with none of the
-       clipping risk. */
+       clipping risk. Per later request, changed from vertically-centered
+       (align-items:center) to top-aligned (align-items:start) within each
+       cell - horizontal centering (justify-items:center) is unchanged - so
+       shorter cards sit flush against the top of their row instead of
+       floating in the row's vertical middle. */
     body.dl2-multi-mode .print-download3{
       display:grid !important; position:relative !important; top:auto !important; left:auto !important;
       visibility:visible !important;
       width:287mm !important; height:200mm !important;
       grid-template-columns:1fr 1fr 1fr !important; grid-template-rows:1fr 1fr !important;
-      justify-items:center !important; align-items:center !important; gap:0 !important;
+      justify-items:center !important; align-items:start !important; gap:0 !important;
     }
+  } /* end @media print (body.dl2-mode .print-download2 / body.dl2-multi-mode
+       .print-download3 - see the long comment above these two rules) */
     body.dl2-multi-mode .dl2-multi-card{
       width:71.99mm !important; box-sizing:border-box !important;
       border:0.6mm solid #a67c52 !important;
-      padding:1.5px 2px 1mm 1px !important;
+      /* Per request, bottom padding removed (was 1mm, matching the
+         single-card .print-download2's own bottom padding) so the last
+         item's own border-bottom divider line (小行星/祈禱, always the
+         final row) sits right against the card's outer frame instead of
+         leaving a gap below it. Multi-card only - the single-card
+         .print-download2 box above keeps its original 1mm bottom padding,
+         which was not part of this request. */
+      padding:1.5px 2px 0 1px !important;
     }
     /* This used to be its own smaller scale than the single-card DL2_SCALE
        (0.2388) - see the DL2_MULTI_SCALE JS constant's comment for the
@@ -744,7 +776,7 @@
        real size - text-align:center on a row it has all to itself is what
        lets it sit truly centered above the sheet without colliding with
        the copyright. */
-    .dl2-top-row{text-align:center; margin-bottom:0.2mm;}
+    .dl2-top-row{text-align:center; margin-bottom:0mm;}
     /* Per request, bumped to the full 2.4mm this time (previously capped at
        2.28mm because anything from ~2.3mm up wrapped onto a 2nd line on
        "下載多人地標小卡"'s fixed per-row height budget - re-verified via a
@@ -783,8 +815,12 @@
       /* Per request, darkened from the original light beige (#e6e1d8) to
          the same coffee-brown already used for the card's outer border
          and the between-column divider, so the horizontal row lines read
-         more clearly against the card's cream background. */
-      padding:1.8mm 0.5mm; border-bottom:0.25mm solid #a67c52;
+         more clearly against the card's cream background.
+         Per request (sync to reference build v647), lightened again to a
+         softer coffee (#a89a82) - distinct from the darker #a67c52 still
+         used for the card's outer frame/column divider, so the row
+         dividers read as a subtler secondary line against those. */
+      padding:1.8mm 0.5mm; border-bottom:0.25mm solid #a89a82;
     }
     /* Column order per request: 標題(title) → 地標圖(icon, 隊形 caption
        underneath it) → 地標(location) - was icon → title+隊形 → 地標 before. */
@@ -798,7 +834,11 @@
          slightly taller - no separate height-cap change needed. */
       flex:1.0187; min-width:0; white-space:normal;
       overflow-wrap:break-word; word-break:break-word;
-      font-weight:700; font-size:10.5mm !important; color:#2f1f1c; line-height:1.2;
+      /* Per request (sync to reference build v647), bumped 10.5mm -> 11mm -
+         the "25.大愛讓世界亮起來" DL2_TITLE_FONT_SIZE_OVERRIDE below (7.6mm)
+         is unchanged, since v647 already runs that same override value at
+         this same 11mm base without needing further re-tuning. */
+      font-weight:700; font-size:11mm !important; color:#2f1f1c; line-height:1.2;
     }
     .dl2-icon-col{
       /* Width is now driven by the 隊形 caption instead of the icon +
@@ -813,8 +853,14 @@
          a little space from .dl2-loc/.dl2-title-col's shared flex-fill
          leftover - the overall sheet width (set elsewhere, explicitly not
          to move) is unaffected. The icon still centers within this column
-         with breathing room. */
-      flex:0 0 19.2mm; box-sizing:border-box;
+         with breathing room.
+         Per request (sync to reference build v647), widened again,
+         19.2mm -> 22mm: single-word merged-row captions ("主機板"/"五大洲"/
+         "大船師"/plain "LOGO") were still wrapping to a second line at the
+         bumped-up 7mm 隊形 font-size (see .dl2-formation below) even at the
+         old 19.2mm width - v647 fixes this the same way, widening this
+         column to 22mm in lockstep with .dl2-formation's own width below. */
+      flex:0 0 22mm; box-sizing:border-box;
       min-width:0; display:flex; flex-direction:column;
       align-items:center; justify-content:center; gap:0.4mm; text-align:center;
     }
@@ -852,15 +898,31 @@
       border-radius:1mm !important; font-size:4.5mm !important; line-height:1.1 !important;
     }
     .dl2-formation{
-      font-size:6.4mm !important; color:#000000; font-weight:700; line-height:1.05;
+      /* Per request, 隊形字級不再統一用6.4mm：預設(單行隊形，如"V隊形"、
+         "1 船"、"圓"、"大船師隊形"、"主機板"等)改成7mm；兩行隊形(見下面
+         .dl2-formation-2line，例如"LOGO"/"有法船"、"五大洲"/"有台灣"這種
+         帶<br>換行的)才維持原本6.4mm。兩種都拿掉粗體(font-weight由700改成
+         正常字重)。 */
+      font-size:7mm !important; color:#000000; font-weight:400; line-height:1.05;
       /* Matches the widened .dl2-icon-col so a 3-character-CJK or "LOGO"
          line fits on one line without a further internal wrap - combined
          with the explicit <br> already inserted after "LOGO"/"五大洲" in
          buildPrintDownload2(), this makes those captions land as exactly
          two lines (e.g. "LOGO" / "有法船") instead of three or four.
          overflow-wrap/word-break kept as a safety net for any longer text
-         not covered by this measurement. */
-      width:19.2mm; overflow-wrap:break-word; word-break:break-word;
+         not covered by this measurement.
+         Per request (sync to reference build v647), widened again,
+         19.2mm -> 21.5mm: single-word merged-row captions ("主機板"/"五大洲"/
+         "大船師"/plain "LOGO") were still wrapping to a second line at the
+         bumped-up 7mm font-size above even after .dl2-icon-col itself had
+         been widened - 21.5mm is the exact point (per v647) those captions
+         stop wrapping at 7mm, with a small safety margin; .dl2-icon-col
+         was widened to 22mm in lockstep so it still contains this box with
+         a little room to spare. */
+      width:21.5mm; overflow-wrap:break-word; word-break:break-word;
+    }
+    .dl2-formation.dl2-formation-2line{
+      font-size:6.4mm !important;
     }
     .dl2-loc{
       /* Left-aligned, narrowed again to grow title-col. No more forced
@@ -2499,6 +2561,12 @@ function buildDl2CardMarkup(rec, printName){
       ? formationStripped.replace(/\s+/, '\n')
       : formationStripped;
     const formationHtml = formationBroken ? escapeHtml(formationBroken).replace(/\n/g, '<br>') : '';
+    // Per request, 兩行的隊形(如"LOGO"/"有法船"、"五大洲"/"有台灣"這種帶
+    // <br>換行的)字級維持6.4mm不變；其他單行隊形字級改成7mm - 用這個flag
+    // 決定要不要多加 .dl2-formation-2line 這個class(見 .dl2-formation/
+    // .dl2-formation-2line CSS)。
+    const isFormation2Line = formationBroken.indexOf('\n') !== -1;
+    const formationClass = 'dl2-formation' + (isFormation2Line ? ' dl2-formation-2line' : '');
     const locRaw = e.locationValue ? String(e.locationValue).replace(/\s*\([^)]*\)/g, '').replace(/\n/g, ' ').trim() : '';
     // If the location is a "XX舞台" entry, force a line break right after
     // the "舞台" token (so it and whatever follows sit on separate lines).
@@ -2581,7 +2649,7 @@ function buildDl2CardMarkup(rec, printName){
     return '<div class="dl2-item">' +
       '<div class="dl2-icon-col">' +
         '<div class="dl2-icon">' + iconHtml + '</div>' +
-        '<div class="dl2-formation">' + formationHtml + '</div>' +
+        '<div class="' + formationClass + '">' + formationHtml + '</div>' +
       '</div>' +
       '<div class="dl2-loc' + locSizeClass + '">' + locHtml + '</div>' +
       '<div class="dl2-title-col">' + titleHtml + '</div>' +
