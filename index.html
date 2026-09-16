@@ -1563,7 +1563,7 @@ const SCENE_TITLE_OVERRIDES_BY_DATE = {
     '11/15': '37.仰師德範'
   },
   '38.第五功德': {
-    '11/12': '36.第五功德[面觀眾45°]',
+    '11/12': '36.第五功德[面甲45°]',
     '11/14': '37.生生世世都在菩提中',
     '11/15': '38.第十功德'
   },
@@ -1638,14 +1638,19 @@ function displayTitle(title, rec){
     const isBlue33 = rec.group === 'A藍' || rec.group === 'B藍';
     return '32.第三功德[面觀眾45°] / ' + (isBlue33 ? '33.啟航[面甲45°]' : '33.啟航[面觀眾45°]');
   }
-  // Per request(11/12限定，主畫面限定)：把「38.第五功德」跟新增的兩個場次
-  // 「37.諸佛菩薩大悲心[面甲45°]」「38.六度行 樂無窮[面甲45°]」合併成同一張
-  // 卡片(見 mergeScene363738For1112)，顯示編號跟文字直接沿用各自原本的規則
-  // 組合 - 38.第五功德在11/12的編號/文字固定是「36.第五功德[面觀眾45°]」
-  // (見 SCENE_TITLE_OVERRIDES_BY_DATE，不隨組別變動)，可以直接寫死組合。
-  if (title === '38.第五功德 / 37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]' && currentPerformDate === '11/12') {
-    return '36.第五功德[面觀眾45°] / 37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]';
+  // Per request(11/12限定，主畫面限定)：原本「38.第五功德」是跟新增的37/38
+  // 合併(見 mergeScene363738For1112)，後來改成跟「34.第六功德[面觀眾45°] /
+  // 35.諸惡道險(黑區)」合併(見 mergeScene34353638For1112)，顯示文字直接沿用
+  // 「34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)」原本的覆蓋文字(見
+  // SCENE_TITLE_OVERRIDES)，後面再接上38.第五功德固定的「36.第五功德
+  // [面甲45°]」(原本是[面觀眾45°]，per request改成[面甲45°]；不隨組別變動)。
+  if (title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區) / 38.第五功德' && currentPerformDate === '11/12') {
+    return SCENE_TITLE_OVERRIDES['34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)'] + ' / 36.第五功德[面甲45°]';
   }
+  // Per request：新增的37/38兩個場次改成自己合併成一張獨立卡片(見
+  // mergeScene3738For1112)，不再跟38.第五功德同一張卡；顯示文字直接沿用各自
+  // 原本的名稱組合，不需要另外處理，直接落到下面 SCENE_TITLE_OVERRIDES[title]
+  // || title 的預設規則即可(這個組合title本來就是最終顯示文字本身)。
   if (dateOverride) return dateOverride;
   return SCENE_TITLE_OVERRIDES[title] || title;
 }
@@ -1715,7 +1720,8 @@ function titleHtmlWithTags(title, rec){
       title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)' ||
       title === '34.第六功德[面觀眾45°] / 37.髻珠喻(莫三比克)' ||
       title === '33.啟航 / 35.諸惡道險(黑區)' ||
-      title === '38.第五功德 / 37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]') {
+      title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區) / 38.第五功德' ||
+      title === '37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]') {
     // Per request, EVERY combined-scene title now breaks onto separate
     // lines on BOTH mobile and desktop screen display (not just mobile),
     // with the "/" separator itself removed and replaced by the line break
@@ -1810,10 +1816,12 @@ function waveLampTag(scene, rec){
     }).join('');
     return '<span class="scene-tag"><span class="tag-text">' + lineHtml32_33 + '</span></span>';
   }
-  if (scene.title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)' && rec && (rec.group === 'A藍' || rec.group === 'B藍')) {
+  if ((scene.title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)' || scene.title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區) / 38.第五功德') && rec && (rec.group === 'A藍' || rec.group === 'B藍')) {
     // Per request，11/12場「34.第六功德[面甲45°] / 35.諸惡道險[面觀眾45°]」這張
     // 合併卡片，A藍/B藍組別標題後面加上一行提示 - 只有35(諸惡道險)這一行，
-    // 不像上面32/33那組有兩行，編號固定用35(跟白組顯示的編號一致)。
+    // 不像上面32/33那組有兩行，編號固定用35(跟白組顯示的編號一致)。後來
+    // 「38.第五功德」也併入這張卡片(見 mergeScene34353638For1112)，這個提示
+    // 跟著繼續生效，多比對合併後的新title。
     const line35 = { text: '35.諸惡道險: 開綠燈', color: '#3aa655' };
     const lineHtml35 = '<span class="tag-line"><span class="dot" style="background:' + line35.color + '"></span><span class="dot-text">' + escapeHtml(line35.text) + '</span></span>';
     return '<span class="scene-tag"><span class="tag-text">' + lineHtml35 + '</span></span>';
@@ -2254,32 +2262,70 @@ function injectNewScenes3738For1112(scenes, rec){
   const idx38 = scenes.findIndex(s => s.title === '38.第五功德');
   if (idx38 === -1) return scenes;
   const source35 = (rec.scenesPhase3 || []).find(s => s.title === '35.諸惡道險(黑區)');
-  const clonedFields = source35 ? JSON.parse(JSON.stringify(source35.fields)) : [];
+  let clonedFields = source35 ? JSON.parse(JSON.stringify(source35.fields)) : [];
+  // Per request(11/12限定)：37.諸佛菩薩大悲心/38.六度行 樂無窮 這兩個新場次的
+  // 「隊形」「地標圖」「最近地標」欄位改成抓「29.開經書」(依記錄/場次不同顯示為
+  // 「31.開經書」等) 的資料，不再沿用複製自35.諸惡道險(黑區)的原始隊形/地標圖/
+  // 最近地標(隊形欄位原本per前一版是沿用35的值，per本次request改成三個欄位
+  // 都改抓29.開經書)。這個函式是主畫面(buildScenesHtml)跟地標小卡
+  // (buildDl2CardMarkup)共用，所以兩邊會一起套用這個覆寫，欄位資料維持兩邊
+  // 一致。
+  const scene29For3738 = rec.scenesPhase2 && rec.scenesPhase2.find(s => s.title === '29.開經書');
+  const formation29For3738 = scene29For3738 && scene29For3738.fields.find(f => f.label === '隊形');
+  const icon29For3738 = scene29For3738 && scene29For3738.fields.find(f => f.label === '地標圖');
+  const loc29For3738 = scene29For3738 && scene29For3738.fields.find(f => f.label === '最近地標(實際位置)');
+  if (formation29For3738 || icon29For3738 || loc29For3738) {
+    clonedFields = clonedFields.map(f => {
+      if (f.label === '隊形' && formation29For3738) return Object.assign({}, f, { value: formation29For3738.value });
+      if (f.label === '地標圖' && icon29For3738) return Object.assign({}, f, { icon: icon29For3738.icon });
+      if (f.label === '最近地標' && loc29For3738) return Object.assign({}, f, { value: loc29For3738.value });
+      return f;
+    });
+  }
   const newScene37 = { title: '37.諸佛菩薩大悲心[面甲45°]', fields: JSON.parse(JSON.stringify(clonedFields)) };
   const newScene38 = { title: '38.六度行 樂無窮[面甲45°]', fields: JSON.parse(JSON.stringify(clonedFields)) };
   const result = scenes.slice();
   result.splice(idx38 + 1, 0, newScene37, newScene38);
   return result;
 }
-// Per request(11/12限定，只用在主畫面buildScenesHtml，不影響地標小卡)，把
-// 「38.第五功德」跟緊接在後面新增的「37.諸佛菩薩大悲心[面甲45°]」「38.六度行
-// 樂無窮[面甲45°]」(見 injectNewScenes3738For1112) 合併成同一張卡片，做法比照
-// mergePhase3ScenesFor1112 - 保留第一個場次(38.第五功德)自己的fields(它在
-// 11/12會被另外的規則remap成跟29.開經書一樣，那些判斷式已經一併加上合併後
-// title的比對，見該處說明)，標題改成三個原始title用' / '組合的字串，
-// displayTitle()裡有對應這個組合title的專屬分支負責產生正確的三行顯示文字。
-// 地標小卡(buildDl2CardMarkup)呼叫的是 injectNewScenes3738For1112 沒有經過
-// 這個合併，所以小卡上三個場次仍然各自獨立顯示，不受影響。
-function mergeScene363738For1112(scenes){
+// Per request(11/12限定，只用在主畫面buildScenesHtml，不影響地標小卡 - 小卡
+// 仍然沿用原本36+37+38合併的邏輯，見 buildDl2CardMarkup 裡的 DL2_MERGE_GROUPS)，
+// 原本是把「38.第五功德」跟新增的37/38合併成一張卡，後來per request改成：
+// 「38.第五功德」改跟「34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)」合併(見
+// mergeScene34353638For1112)，新增的37/38兩個場次改成自己合併成另一張獨立的
+// 卡片(見 mergeScene3738For1112)，不再跟38.第五功德同一張卡。
+// Per request，「34/35/36」合併後那一列隊形/地標圖/最近地標欄位改用34自己
+// 原本的資料(五大洲 無台灣)，不採用38.第五功德自己那套借用29.開經書的remap
+// (那套remap的判斷式維持原樣、只比對沒有合併過的「38.第五功德」，這裡合併後
+// 的新title不會命中，等於不再套用，跟需求一致)。
+function mergeScene34353638For1112(scenes){
+  const idx3435 = scenes.findIndex(s => s.title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區)');
   const idx38 = scenes.findIndex(s => s.title === '38.第五功德');
-  const idx37new = scenes.findIndex(s => s.title === '37.諸佛菩薩大悲心[面甲45°]');
-  const idx38new = scenes.findIndex(s => s.title === '38.六度行 樂無窮[面甲45°]');
-  if (idx38 === -1 || idx37new === -1 || idx38new === -1) return scenes;
+  if (idx3435 === -1 || idx38 === -1) return scenes;
   const result = [];
   scenes.forEach((s, i) => {
-    if (i === idx37new || i === idx38new) return;
-    if (i === idx38) {
-      result.push(Object.assign({}, s, { title: '38.第五功德 / 37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]' }));
+    if (i === idx38) return;
+    if (i === idx3435) {
+      result.push(Object.assign({}, s, { title: '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區) / 38.第五功德' }));
+    } else {
+      result.push(s);
+    }
+  });
+  return result;
+}
+// Per request，新增的「37.諸佛菩薩大悲心[面甲45°]」「38.六度行 樂無窮
+// [面甲45°]」(見 injectNewScenes3738For1112) 從38.第五功德的卡片獨立出來，
+// 自己合併成一張只有這兩行標題的卡片；欄位保留第一個場次(37)自己的fields
+// (跟38是同一份，複製自35.諸惡道險，見 injectNewScenes3738For1112)。
+function mergeScene3738For1112(scenes){
+  const idx37new = scenes.findIndex(s => s.title === '37.諸佛菩薩大悲心[面甲45°]');
+  const idx38new = scenes.findIndex(s => s.title === '38.六度行 樂無窮[面甲45°]');
+  if (idx37new === -1 || idx38new === -1) return scenes;
+  const result = [];
+  scenes.forEach((s, i) => {
+    if (i === idx38new) return;
+    if (i === idx37new) {
+      result.push(Object.assign({}, s, { title: '37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]' }));
     } else {
       result.push(s);
     }
@@ -2586,16 +2632,23 @@ function buildDl2CardMarkup(rec, printName){
     ...(isNotTaiwan && currentPerformDate === '11/15' ? [ISNOTTAIWAN_2940_TITLES] : []),
     ...(isNotTaiwan && currentPerformDate === '11/14' && shouldMergeNotTaiwan1114 ? [ISNOTTAIWAN_3040_1114_TITLES] : []),
     // 見上面 isTaiwan1112 的說明：11/12場台灣的人，29+30(顯示編號)合併一
-    // 列，31自己一列(不放進任何合併組)，32~37合併另一列。
+    // 列，31自己一列(不放進任何合併組)，32~36合併另一列(原本是32~37，後來
+    // per request把「38.第五功德」(顯示編號36) 從下面那組移進來一起合併，
+    // 比照主畫面 mergeScene34353638For1112 的做法；「36.第八功德(莫三比克)」
+    // 「37.髻珠喻(莫三比克)」這兩個11/12已刪除的曲目留著純粹是死代碼、不影響
+    // 結果)。合併後這一列的隊形/地標圖/最近地標欄位沿用 mergeDl2Entries 預設
+    // 規則(陣列中第一個有值的part，也就是31.第三功德自己天生的資料，不是
+    // 38.第五功德remap過的29.開經書資料)，跟主畫面34/35/36合併卡「用34自己
+    // 資料」的決定一致。
     ...(isTaiwan1112 ? [["30.心蓮", "32.富中之富"]] : []),
-    ...(isTaiwan1112 ? [["31.第三功德", "33.啟航", "34.第六功德[面觀眾45°]", "35.諸惡道險(黑區)", "36.第八功德(莫三比克)", "37.髻珠喻(莫三比克)"]] : []),
-    // Per request，「38.第五功德」原本(11/12場台灣的人)自己獨立一列，後來
-    // per request改成跟新增的37.諸佛菩薩大悲心/38.六度行 樂無窮合併成同一列
-    // (小卡上也比照主畫面36~38合併卡片的做法，見 mergeScene363738For1112 的
-    // 說明)；39+40仍然維持合併另一列，不受影響(39/40的隊形/地標圖/地標仍然是
-    // 借用38.第五功德原始值"五大洲 無台灣"，不受這裡38自己的隊形覆寫影響 - 見
-    // 上方兩條規則的說明)。
-    ...(isTaiwan1112 ? [["38.第五功德", "37.諸佛菩薩大悲心[面甲45°]", "38.六度行 樂無窮[面甲45°]"]] : []),
+    ...(isTaiwan1112 ? [["31.第三功德", "33.啟航", "34.第六功德[面觀眾45°]", "35.諸惡道險(黑區)", "36.第八功德(莫三比克)", "37.髻珠喻(莫三比克)", "38.第五功德"]] : []),
+    // Per request，新增的「37.諸佛菩薩大悲心[面甲45°]」「38.六度行 樂無窮
+    // [面甲45°]」(見 injectNewScenes3738For1112) 改成自己獨立合併成一列，
+    // 不再跟「38.第五功德」同一列(38.第五功德已經改併進上面32~36那組)，比照
+    // 主畫面 mergeScene3738For1112 的做法；39+40仍然維持合併另一列，不受
+    // 影響(39/40的隊形/地標圖/地標仍然是借用38.第五功德原始值"五大洲
+    // 無台灣"，不受這裡38自己的隊形覆寫影響 - 見上方兩條規則的說明)。
+    ...(isTaiwan1112 ? [["37.諸佛菩薩大悲心[面甲45°]", "38.六度行 樂無窮[面甲45°]"]] : []),
     ...(isTaiwan1112 ? [["39.六瑞相", "40.發心立願"]] : []),
     // 見上面 isTaiwan1114 的說明：11/14場台灣的人，per request改成30(內部
     // 32.富中之富)自己一列、31(內部29.開經書)自己一列(都不放進任何合併組)，
@@ -2669,13 +2722,21 @@ function buildDl2CardMarkup(rec, printName){
   // 曲目自己天生的隊形值，例如「圓」，跟這個合併規則想呈現的「五大洲」意義
   // 不符)。11/14場這組(30~39)有自己另外的覆寫(見下面 currentPerformDate
   // === '11/14' 那一段)；11/15場少了「34.第六功德[面觀眾45°]」這個曲目，
-  // 查找時要用上面的 ISNOTTAIWAN_2940_TITLES_1115(已排除34)，否則
-  // join(' / ') 出來的字串會找不到對應的合併列；11/12場多了37.諸佛菩薩大悲心/
-  // 38.六度行 樂無窮這兩個新場次(見上方 ISNOTTAIWAN_2940_TITLES_1112 的說明)，
-  // 同樣要用補上這兩個新標題的版本才能對應到合併後的字串。
+  // 11/12場已刪除「36.第八功德(莫三比克)」「37.髻珠喻(莫三比克)」這兩個曲目
+  // (見 PHASE3_DROPPED_ON_1112/DL2_PHASE3_DROPPED_ON_1112)，原本用固定陣列
+  // join(' / ') 去比對合併後的字串，只要清單裡有任何一個曲目在當前日期已被
+  // 刪掉就會整個對不起來、覆寫完全不會生效(這正是本次report的bug原因)。改成
+  // 動態做法：用跟 mergeDl2Entries 完全一樣的演算法(依序找出清單裡「實際存在
+  // 於 rawEntries」的曲目、依原始陣列位置排序後 join)，不管日期刪了哪些曲目
+  // 都能正確比對到合併後的那一列，不需要為每個日期各自維護一份「已排除已刪
+  // 曲目」的靜態陣列。
   if ((currentPerformDate === '11/12' || currentPerformDate === '11/15') && isNotTaiwan) {
     const titlesFor2940Lookup = currentPerformDate === '11/15' ? ISNOTTAIWAN_2940_TITLES_1115 : ISNOTTAIWAN_2940_TITLES_1112;
-    const entry2940Merged = entries.find(e => e.title === titlesFor2940Lookup.join(' / '));
+    const presentIdxs2940 = [];
+    titlesFor2940Lookup.forEach(t => { const i = rawEntries.findIndex(e => e.title === t); if (i !== -1) presentIdxs2940.push(i); });
+    presentIdxs2940.sort((a, b) => a - b);
+    const expectedJoined2940 = presentIdxs2940.map(i => rawEntries[i].title).join(' / ');
+    const entry2940Merged = entries.find(e => e.title === expectedJoined2940);
     if (entry2940Merged) {
       entry2940Merged.formationValue = '五大洲';
     }
@@ -3049,7 +3110,7 @@ function buildScenesHtml(rec, phase){
       rec.scenesPhase2 ? reorderPhase2CiChengAfterGuiYangTu(rec.scenesPhase2.filter(s => s.title !== '29.開經書')) : null
     ) :
     (phase === 3 ? (
-      currentPerformDate === '11/12' ? mergeScene363738For1112(injectNewScenes3738For1112(mergePhase3ScenesFor1112(reorderPhase3WithKaijing1112(rec).filter(s => PHASE3_DROPPED_ON_1112.indexOf(s.title) === -1)), rec)) :
+      currentPerformDate === '11/12' ? mergeScene3738For1112(mergeScene34353638For1112(injectNewScenes3738For1112(mergePhase3ScenesFor1112(reorderPhase3WithKaijing1112(rec).filter(s => PHASE3_DROPPED_ON_1112.indexOf(s.title) === -1)), rec))) :
       currentPerformDate === '11/15' ? mergePhase3ScenesFor1115(reorderPhase3WithKaijing1112(rec).filter(s => PHASE3_DROPPED_ON_1115.indexOf(s.title) === -1)) :
       currentPerformDate === '11/14' ? (rec.scenesPhase3 ? mergePhase3ScenesFor1114(reorderPhase3WithKaijing1114(rec).filter(s => PHASE3_DROPPED_ON_1114.indexOf(s.title) === -1)) : null) :
       null
@@ -3194,12 +3255,15 @@ function buildScenesHtml(rec, phase){
     // 「地標圖」的圖示跟「最近地標」的文字值，其餘欄位(隊形等)不受影響，也
     // 不影響11/14、11/15兩場(這兩場38的顯示概念本來就不同，見
     // SCENE_TITLE_OVERRIDES_BY_DATE)。
-    // Per request，「38.第五功德」後來跟新增的37.諸佛菩薩大悲心/38.六度行
-    // 樂無窮合併成同一張卡片(見 mergeScene363738For1112)，合併後的 scene
-    // 物件仍然沿用38.第五功德自己的fields(合併函式保留第一個場次的欄位)，
-    // 但title變成組合字串，所以這裡兩個判斷式都要多比對合併後的title，才能
-    // 讓借用29.開經書地標圖/地標/隊形的覆寫繼續生效。
-    if ((scene.title === '38.第五功德' || scene.title === '38.第五功德 / 37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]') && currentPerformDate === '11/12') {
+    // Per request，「38.第五功德」原本跟新增的37.諸佛菩薩大悲心/38.六度行
+    // 樂無窮合併成同一張卡片時，這裡曾經多比對過合併後的title，讓這條覆寫繼續
+    // 生效；後來per request改成「38.第五功德」改跟「34.第六功德[面觀眾45°] /
+    // 35.諸惡道險(黑區)」合併(見 mergeScene34353638For1112)，且明確改成合併後
+    // 那一列要用34自己原本的資料，不套用這裡借用29.開經書的覆寫 - 所以這裡
+    // 改回只比對沒有合併過的「38.第五功德」，合併後的新title不會命中，等於
+    // 不再套用，跟需求一致(38.第五功德已經不會再以獨立scene的身份出現在
+    // 11/12的畫面上，這兩個判斷式目前對11/12來說形同備用)。
+    if (scene.title === '38.第五功德' && currentPerformDate === '11/12') {
       const scene29For38 = rec.scenesPhase2 && rec.scenesPhase2.find(s => s.title === '29.開經書');
       const icon29For38 = scene29For38 && scene29For38.fields.find(f => f.label === '地標圖');
       const loc29For38 = scene29For38 && scene29For38.fields.find(f => f.label === '最近地標(實際位置)');
@@ -3212,8 +3276,9 @@ function buildScenesHtml(rec, phase){
       }
     }
     // 見 computeRemappedFieldsForDL2() 裡同一個 38.第五功德隊形改用
-    // 29.開經書的說明 - 這裡是主畫面用的版本，維持跟地標小卡一致。
-    if ((scene.title === '38.第五功德' || scene.title === '38.第五功德 / 37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]') && currentPerformDate === '11/12') {
+    // 29.開經書的說明 - 這裡是主畫面用的版本，維持跟地標小卡一致。原因同上，
+    // 改回只比對沒有合併過的「38.第五功德」。
+    if (scene.title === '38.第五功德' && currentPerformDate === '11/12') {
       const scene29For38Formation = rec.scenesPhase2 && rec.scenesPhase2.find(s => s.title === '29.開經書');
       const formation29For38 = scene29For38Formation && scene29For38Formation.fields.find(f => f.label === '隊形');
       if (formation29For38) {
@@ -3497,13 +3562,15 @@ function buildScenesHtml(rec, phase){
         const blueBadge31 = '<span style="display:inline-block; color:#1a3a8f; font-weight:700; border:1.5px solid #1a3a8f; border-radius:4px; padding:0px 5px; margin-bottom:2px;">' + escapeHtml('第三功德') + '</span>';
         importantCueHtml = '<span class="value-cue">' + blueBadge31 + '<br>' + cueBullet + cueText('「自在度人」顯願力→ 雙手平送到甲外45°') + '</span>';
         importantCueValueClass = '';
-      } else if ((scene.title === '38.第五功德' || scene.title === '38.第五功德 / 37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°]') && currentPerformDate === '11/12') {
+      } else if ((scene.title === '38.第五功德' || scene.title === '34.第六功德[面觀眾45°] / 35.諸惡道險(黑區) / 38.第五功德') && currentPerformDate === '11/12') {
         // Per request 新增重要拍點，只在11/12場(顯示「38.第五功德[面觀眾45°]」)
         // 生效，跟其他兩場(11/14顯示「37.生生世世都在菩提中」、11/15顯示
         // 「38.第十功德」)無關。沒有「」引號內容，cueText()只會自動把「合掌」
-        // 標成橘色，不需要額外手刻顏色。合併成「36.第五功德/37.諸佛菩薩大悲心/
-        // 38.六度行 樂無窮」同一張卡片後(見 mergeScene363738For1112)，這條拍點
-        // 沿用38.第五功德自己原本的內容，多比對合併後的title繼續生效。
+        // 標成橘色，不需要額外手刻顏色。「38.第五功德」原本跟新增的37/38合併
+        // (見 mergeScene363738For1112)，後來改成跟「34.第六功德[面觀眾45°] /
+        // 35.諸惡道險(黑區)」合併(見 mergeScene34353638For1112)，這條拍點是
+        // 38.第五功德自己的內容，隨著它移動改比對合併後的新title繼續生效
+        // (欄位資料不受這條拍點影響，欄位仍然是34自己的資料，見合併函式說明)。
         // Per request，拍點文字上面加上「第五功德」藍框標籤(用來標示這條拍點是
         // 第五功德的內容)，樣式跟「32.第三功德/33.啟航」合併卡片上的
         // blueBadge31「第三功德」藍框(#1a3a8f同一種藍色)、排版方式(藍框+
@@ -3516,9 +3583,19 @@ function buildScenesHtml(rec, phase){
         importantCueValueClass = '';
       } else if (scene.title === '06.靜思家風') {
         const isBlueCue = rec.group === 'A藍' || rec.group === 'B藍';
+        // Per request：白衣組裡「06.靜思家風」地標是「有舞台跟階梯的」(最近地標
+        // 值含「舞台」或「階」，目前全部78筆都是A白) 這批人，拍點文字改成跟
+        // 「你去煮麵線→上舞台跑位」有關的內容，不再是原本的「我認定」這個師父
+        // (原本的文字繼續留給地標沒有舞台/階梯的白衣組人用)；A藍/B藍(藍衣組)
+        // 不受影響，維持原本兩行不變。
+        const scene06ForCue = rec.scenes && rec.scenes.find(s => s.title === '06.靜思家風');
+        const loc06ForCue = scene06ForCue && scene06ForCue.fields.find(f => f.label === '最近地標');
+        // 跟上面「06.靜思家風」地標圖 hasStage 判斷式(見上方 stageIconMap 那段)
+        // 用同一套規則："舞台"文字或"第X階"格式都算，保持一致。
+        const hasStage06 = !!(loc06ForCue && loc06ForCue.value && (loc06ForCue.value.indexOf('舞台') !== -1 || /第\d+階/.test(loc06ForCue.value)));
         const cueLines = isBlueCue
           ? ['OS:你去煮麵線→舞台的人上舞台，正面向甲', 'OS: 我「認定」這個師父→ 合掌轉向法師(正向)']
-          : ['OS: 我「認定」這個師父→ 合掌轉向法師45°'];
+          : (hasStage06 ? ['OS: 「你去煮麵線」→上舞台跑位, 面法師'] : ['OS: 我「認定」這個師父→ 合掌轉向法師45°']);
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '02.生、老、病、死、六度') {
@@ -3589,18 +3666,11 @@ function buildScenesHtml(rec, phase){
         importantCueHtml = '<span class="value-cue">' + vow12Html + '<br>' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '13.大船師') {
-        const areaField13 = fields.find(f => f.label === '區域');
-        const boatVal13 = areaField13 ? (areaField13.value || '') : '';
-        const isSpecialBoat13 = boatVal13 === '船-北50' || boatVal13 === '船-北西60';
-        const cueLines = isSpecialBoat13
-          ? [
-              'OS: 「大醫王」→船跑位 面甲(上舞台者先壓縮在第二階)',
-              '從臺灣出發：船右轉向船頭',
-              '「每個病人」→ 舞台的船衝上去'
-            ]
-          : [
-              'OS: 「大醫王」→船跑位'
-            ];
+        // Per request，原本「區域」是"船-北50"/"船-北西60"的人有自己的3行拍點
+        // (大醫王→船跑位 面甲(上舞台者先壓縮在第二階)/從臺灣出發：船右轉向
+        // 船頭/每個病人→舞台的船衝上去)，這次request整段刪除，統一改成跟其他
+        // 人一樣只顯示「OS: 「大醫王」→船跑位」一行，不再區分區域。
+        const cueLines = ['OS: 「大醫王」→船跑位'];
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '14.骨髓捐贈 / 15.能捨一切諸難捨') {
