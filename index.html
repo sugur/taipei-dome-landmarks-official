@@ -1505,7 +1505,7 @@ const SCENE_TITLE_OVERRIDES = {
   // 同一張場次卡片，兩者全部1035筆記錄的隊形/地標圖/最近地標欄位完全相同。
   // 這個key只在11/15出現。Per request(11/15限定，新增「13.火宅喻」後)，編
   // 號再整體往後遞補1號(34→35、35→36)。
-  '33.啟航 / 35.諸惡道險(黑區)': '35.若入世城[面法師45°] / 36.諸惡道險[面觀眾45°]'
+  '33.啟航 / 35.諸惡道險(黑區)': '35.若入世城[面法師45°] / 36.諸惡道險[面甲45°]'
 };
 // 11/14、11/15 這兩場的節目單在「20.畢業組曲」之後多了「22.藥草喻」，導致
 // 之後所有場次編號都要往後遞增1號；11/12 場次維持原編號。這裡只覆蓋「顯示用」
@@ -1638,7 +1638,7 @@ const SCENE_TITLE_OVERRIDES_BY_DATE = {
     // 「13.無醫村」後)，編號再整體往後遞補1號(33→34)。Per request(11/15
     // 限定，新增「13.火宅喻」後)，11/15編號也再整體往後遞補1號(35→36)。
     '11/12': '34.諸惡道險[面觀眾45°]',
-    '11/15': '36.諸惡道險[面觀眾45°]'
+    '11/15': '36.諸惡道險[面甲45°]'
   },
   // 11/15場的顯示文字依組別不同(A白/B白「背向陸地中心」、A藍/B藍
   // 「面觀眾45°」)，不是固定字串，所以這裡不放'11/15'了，改用
@@ -3838,14 +3838,60 @@ function buildScenesHtml(rec, phase){
     const hideCue13 = scene.title === '13.大船師' && !scene13HasBoat;
     // 11/12、11/14 場的「09.是諸眾生」不顯示重要拍點欄位(僅 11/15 場保留)。
     const hideCue09 = scene.title === '09.是諸眾生' && (currentPerformDate === '11/12' || currentPerformDate === '11/14');
-    // 11/15 場的「37.髻珠喻(莫三比克)」顯示為「38.報佛恩」時，不顯示重要拍點欄位
-    // (11/12、11/14 這個曲目仍保留原本的重要拍點)。
-    const hideCue36On1115 = scene.title === '37.髻珠喻(莫三比克)' && currentPerformDate === '11/15';
-    if (scene.title !== '29.開經書 / 31.第三功德' && scene.title !== '20.畢業組曲-成長 / 21.畢業組曲-感恩' && !hideCue13 && !hideCue09 && !hideCue36On1115) {
+    // 11/15 場的「29.開經書 / 31.第三功德」合併卡片(顯示「33.開經書 / 34.第九
+    // 功德」)：Per request，新增「東星大樓倒塌」重要拍點(對象是第九功德)。
+    // A藍/B藍全部都有；白衣組只有「非台灣」(國家欄位不是「台灣」)的人才有，
+    // 白衣組台灣的人沒有第九功德這部分。Per request，這張卡片另外加上「開經書」
+    // 的重要拍點(內容跟11/12、11/14的開經書拍點相同)，排在第九功德前面，不分
+    // 組別、台灣/非台灣都有(文字依台灣/白/藍不同)。
+    const isBlue2931 = rec.group === 'A藍' || rec.group === 'B藍';
+    const country2931Field = fields.find(f => f.label === '國家');
+    const isTaiwan2931 = !!(country2931Field && country2931Field.value === '台灣');
+    if (scene.title !== '20.畢業組曲-成長 / 21.畢業組曲-感恩' && !hideCue13 && !hideCue09) {
       let importantCueHtml = '';
       let importantCueValueClass = ' value-icon-center';
       const cueBullet = '<span style="color:var(--accent)">◦</span> ';
-      if (scene.title === '01.序') {
+      if (scene.title === '29.開經書 / 31.第三功德') {
+        const mkBadge2931 = function(label){
+          return '<span style="display:inline-block; color:#1a3a8f; font-weight:700; border:1.5px solid #1a3a8f; border-radius:4px; padding:0px 5px; margin-bottom:2px;">' + escapeHtml(label) + '</span>';
+        };
+        const cueLines2931Kj = isTaiwan2931
+          ? ['「啊!我想到了」→台灣上台']
+          : [isBlue2931 ? '「啊!我想到了」→開燈放口袋,合掌' : '「啊!我想到了」→開燈拿燈, 合掌', '演完暗場→轉面觀眾45°'];
+        let cueHtml2931 = mkBadge2931('開經書') + '<br>' + cueLines2931Kj.map(l => cueBullet + cueText(l)).join('<br>');
+        if (isBlue2931 || !isTaiwan2931) {
+          const cueLine2931 = isBlue2931
+            ? '東星大樓「倒塌」了 →往乙舞台倒'
+            : '東星大樓「倒塌」了 →蹲下, 兩手擋頭上';
+          cueHtml2931 += '<br>' + mkBadge2931('第九功德') + '<br>' + cueBullet + cueText(cueLine2931);
+        }
+        importantCueHtml = '<span class="value-cue">' + cueHtml2931 + '</span>';
+        importantCueValueClass = '';
+      } else if (scene.title === '30.心蓮' && currentPerformDate === '11/12') {
+        // Per request(11/12限定，顯示「30.心蓮[面甲45°]」)：新增重要拍點，不分
+        // 組別；11/14、11/15不受影響。
+        importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('OS：人若多! 就「有夠力」→ 兩手交疊') + '</span>';
+        importantCueValueClass = '';
+      } else if (scene.title === '33.啟航 / 35.諸惡道險(黑區)') {
+        // Per request(11/15限定，這張合併卡片只在11/15出現)：新增「諸惡道險」
+        // 的重要拍點，不分組別。
+        const cueBadge3335 = '<span style="display:inline-block; color:#1a3a8f; font-weight:700; border:1.5px solid #1a3a8f; border-radius:4px; padding:0px 5px; margin-bottom:2px;">' + escapeHtml('諸惡道險') + '</span>';
+        importantCueHtml = '<span class="value-cue">' + cueBadge3335 + '<br>' + cueBullet + cueText('OS：「學校是孩子的希望」→ 轉法師45°, 開綠燈') + '</span>';
+        importantCueValueClass = '';
+      } else if (scene.title === '36.第八功德(莫三比克)') {
+        // Per request：「37.大愛為梁」(內部代號36.第八功德(莫三比克)，只在11/15
+        // 顯示)新增重要拍點，不分組別。
+        importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('OS：發放「應急金」→開綠燈') + '</span>';
+        importantCueValueClass = '';
+      } else if (scene.title === '37.髻珠喻(莫三比克)' && currentPerformDate === '11/15') {
+        // Per request(11/15限定，顯示「38.報佛恩」)：原本的「譬如髻珠」拍點(仍
+        // 保留給11/12、11/14)換成這裡的新拍點；白衣組(A白/B白)多一條轉背向
+        // 陸地中心。
+        const cueLines38 = ['「讓正法」重回佛陀的故鄉→合掌 轉法師45°'];
+        if (!isBlue2931) cueLines38.push('OS： 「回報佛恩」→轉背向陸地中心');
+        importantCueHtml = '<span class="value-cue">' + cueLines38.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
+        importantCueValueClass = '';
+      } else if (scene.title === '01.序') {
         // Per request, "聽到巴利文無量義經拿燈不開燈" moved here from the
         // scene's waveLampTag() hint tag (see that function) - kept as its
         // own hand-built line (rather than going through cueText()) so the
@@ -3911,6 +3957,12 @@ function buildScenesHtml(rec, phase){
           escapeHtml(' →拿燈  ') +
           '<span style="color:#3aa655">' + escapeHtml('敬禮') + '</span>';
         const cue32Lines = [cue32Line0, cue32Line2];
+        // Per request(11/12限定，白衣組A白/B白)：新增第一個重要拍點
+        // 「「這位航運界」→合掌」，排在「什麼是富中之富」前面；藍衣組、11/14、
+        // 11/15不受影響。
+        if (currentPerformDate === '11/12' && (rec.group === 'A白' || rec.group === 'B白')) {
+          cue32Lines.unshift(cueText('「這位航運界」→合掌'));
+        }
         importantCueHtml = '<span class="value-cue">' +
           cue32Lines.map(function(l){ return cueBullet + l; }).join('<br>') +
           '</span>';
@@ -4150,9 +4202,12 @@ function buildScenesHtml(rec, phase){
         // 其餘人拍點文字不同。
         const countryField29 = fields.find(f => f.label === '國家');
         const isTaiwan29 = countryField29 && countryField29.value === '台灣';
+        // Per request(11/12、11/14)：第一條拍點加上「啊!」，且非台灣的人依組別
+        // 拿燈/放口袋(白：開燈拿燈, 合掌；藍：開燈放口袋,合掌)。
+        const isBlue29 = rec.group === 'A藍' || rec.group === 'B藍';
         const cueLines = isTaiwan29
-          ? ['「我想到了」→台灣上台', '演完暗場→台灣下台, 到位面觀眾45°']
-          : ['「我想到了」→開燈', '演完暗場→轉面觀眾45°'];
+          ? ['「啊!我想到了」→台灣上台', '「咚咚咚」→台灣下台']
+          : [isBlue29 ? '「啊!我想到了」→開燈放口袋,合掌' : '「啊!我想到了」→開燈拿燈, 合掌', '演完暗場→轉面觀眾45°'];
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '25.大愛讓世界亮起來 / 26.天空破了洞 / 27.用鼓掌的雙手做環保') {
