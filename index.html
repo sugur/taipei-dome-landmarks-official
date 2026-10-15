@@ -4060,7 +4060,8 @@ function buildScenesHtml(rec, phase){
         importantCueHtml = '<span class="value-cue">' + blueBadge38 + '<br>' + cueBullet + cueText('上人 :看他們真的很大膽→ 上人一說話就合掌') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '05.扛天下米籮') {
-        importantCueHtml = '<span class="value-cue">' + cueBullet + cueText('空襲聲音→ 換扛天下米籮隊形') + '</span>';
+        // Per request：新增第二個拍點「OS：「我很震撼」→ 轉甲45°」。
+        importantCueHtml = '<span class="value-cue">' + ['空襲聲音→ 換扛天下米籮隊形', 'OS：「我很震撼」→ 轉甲45°'].map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '06.靜思家風') {
         const isBlueCue = rec.group === 'A藍' || rec.group === 'B藍';
@@ -4096,9 +4097,11 @@ function buildScenesHtml(rec, phase){
           ]},
           { label: '死苦', lines: [
             'OS：「生命何義」→ 合掌轉向法師 腳夾圓弧線',
-            '「夜深人靜」離宮殿→合掌 內轉向圓心'
+            '「夜深人靜」離宮殿→合掌 內轉向圓心',
+            'OS：「...尋求解脫之道」→講完暗場轉向甲'
           ]},
           { label: '六度', lines: [
+            '「為應菩薩」大根機→內轉向乙圓心',
             '再說六度波羅蜜 ...OS :「行六度」→合掌 ' + (isBlueGroup02 ? '右轉' : '左轉')
           ]}
         ];
@@ -4110,7 +4113,7 @@ function buildScenesHtml(rec, phase){
         const area07Cue = (fields.find(f => f.label === '區域') || {}).value || '';
         const cueLines = [
           '「不知是生還是死」… →換LOGO隊形，面向甲',
-          'OS：師父「我們需要你」→合掌 轉演繹方向',
+          '師父「我們需要你」→合掌 轉演繹方向',
           '「如果你們願意幫助我」→ 開黃燈'
         ];
         // Per request，「我就永遠不離開花蓮」拍點依區域分成不同動作，只有下面
@@ -4142,7 +4145,9 @@ function buildScenesHtml(rec, phase){
         const hasLotus9 = !!(areaField9 && areaField9.value && areaField9.value.indexOf('蓮蓬') !== -1);
         const cueLines = [
           hasLotus9 ? 'OS:「菩薩所緣」→LOGO上舞台，轉向演繹面向' : 'OS:「菩薩所緣」，緣苦眾生→轉向演繹面向。',
-          '一起為「天下」苦難..→開燈'
+          '「但願」將來..→開燈',
+          // Per request：在最後新增一個拍點(同一行兩個動作)。
+          '「車禍尖叫聲」→換V隊形 , 「再不做來不及」→腳尖對線'
         ];
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
@@ -4207,6 +4212,8 @@ function buildScenesHtml(rec, phase){
         }
         // Per request，新增「能捨」拍點，排在最後一個。
         cap2Lines = cap2Lines.concat(['「廣淨佛國」→燈舉高']);
+        // Per request，新增最後一個拍點(排在「能捨」最後)。
+        cap2Lines = cap2Lines.concat(['OS:「喝酒!喝酒!」→換教育圓隊形']);
         const cap1Lines = [
           '三聲鑼響→我願意',
           ' 那個人「就是你」→ 轉向甲，兩腳夾線'
@@ -4220,7 +4227,14 @@ function buildScenesHtml(rec, phase){
         const cueBadge = function(label){
           return '<span style="display:inline-block; color:#1a3a8f; font-weight:700; border:1.5px solid #1a3a8f; border-radius:4px; padding:0px 5px; margin-bottom:2px;">' + escapeHtml(label) + '</span>';
         };
+        // Per request：新增「梵唄」的兩個拍點，排在「大慈大悲」前面(跟標題曲目
+        // 順序一致)，各自一組藍框標籤+拍點文字。
+        const capFanbaiLines = [
+          '「所發慈悲」→合掌',
+          '「復為說法」→合掌，轉向甲，兩腳夾線'
+        ];
         importantCueHtml = '<span class="value-cue">' +
+          cueBadge('梵唄') + '<br>' + capFanbaiLines.map(l => cueBullet + cueText(l)).join('<br>') + '<br>' +
           cueBadge('大慈大悲') + '<br>' + cueBullet + cueText('OS：「 哇!」病人呼吸平穩→開綠燈(口袋)、合掌') +
           '</span>';
         importantCueValueClass = '';
@@ -4233,7 +4247,7 @@ function buildScenesHtml(rec, phase){
         ];
         const cap2Lines = [
           'OS:「2000年慈濟...」→拿燈合掌壓縮, 到位轉向法師開燈',
-          '演繹結束OS：你們怎麼在「掃廁所啊」→ 收'
+          '你們怎麼在「掃廁所啊」→ 收燈, 轉向甲'
         ];
         importantCueHtml = '<span class="value-cue">' +
           cueBadge('誓願將心') + '<br>' + cap1Lines.map(l => cueBullet + cueText(l)).join('<br>') +
@@ -4324,19 +4338,19 @@ function buildScenesHtml(rec, phase){
         let cueLines;
         if (num === '1') {
           cueLines = [
-            '鳩摩羅什演繹→ 換行願隊形，先壓縮在第三、二、一階、平地 ，雙腳夾線 看甲舞台',
+            '交響樂→ 換行願隊形，先壓縮在第三、二、一階、平地 ，雙腳夾線 看甲舞台',
             '「 翻譯佛法 佛法永傳」→ 雙腳夾線看甲舞台',
             '「 不至日本」 → 衝上去到位直接面法師'
           ];
         } else if (['14','12','3','2','4'].indexOf(num) !== -1) {
           cueLines = [
-            '鳩摩羅什演繹→ 換成行願隊形，雙腳夾線看甲舞台',
+            '交響樂→ 換成行願隊形，雙腳夾線看甲舞台',
             '「 翻譯佛法 佛法永傳」→雙腳夾線看甲舞台',
             '「東傳佛法 佛法永傳」→轉向自己行願面向'
           ];
         } else {
           cueLines = [
-            '鳩摩羅什演繹暗場→ 換行願隊形，雙腳夾線 看甲舞台',
+            '交響樂→ 換行願隊形，雙腳夾線 看甲舞台',
             '「 翻譯佛法 佛法永傳」→兩腳夾線 看甲舞台',
             '「東傳佛法 佛法永傳」→轉面向自己行願面向'
           ];
