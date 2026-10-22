@@ -3937,8 +3937,11 @@ function buildScenesHtml(rec, phase){
     });
     const scene13HasBoat = scene.title === '13.大船師' && fields.some(f => f.label === '區域' && f.value && f.value.indexOf('船') !== -1);
     const hideCue13 = scene.title === '13.大船師' && !scene13HasBoat;
-    // 11/12、11/14 場的「09.是諸眾生」不顯示重要拍點欄位(僅 11/15 場保留)。
-    const hideCue09 = scene.title === '09.是諸眾生' && (currentPerformDate === '11/12' || currentPerformDate === '11/14');
+    // 11/12、11/14 場的「09.是諸眾生」原本不顯示重要拍點欄位(僅 11/15 場保留完整
+    // 拍點)；Per request，11/12、11/14 改為只新增顯示最後一個拍點
+    // 「「車禍尖叫聲」→換V隊形 , 「再不做來不及」→腳尖對線」(見下方 09 分支)，
+    // 其他拍點在這兩場仍然不顯示，所以欄位不再整個隱藏。
+    const hideCue09 = false;
     // 11/15 場的「29.開經書 / 31.第三功德」合併卡片(顯示「33.開經書 / 34.第九
     // 功德」)：Per request，新增「東星大樓倒塌」重要拍點(對象是第九功德)。
     // A藍/B藍全部都有；白衣組只有「非台灣」(國家欄位不是「台灣」)的人才有，
@@ -4051,7 +4054,9 @@ function buildScenesHtml(rec, phase){
         // 「不合掌」裡的「合掌」兩字，一律塗成橘色)，所以這裡改成手刻HTML：
         // 「我愛人人 人人愛我」保留跟其他行一致的紅字引號，「→關燈, 不合掌」
         // 其餘維持預設黑字。
-        const cue04Line3Html = '<span style="color:#e53935">' + escapeHtml('「我愛人人 人人愛我」') + '</span>' + escapeHtml('→關燈, 不合掌');
+        // Per request：這行改為「結束  →關燈,轉向甲, 不合掌」(原本是「「我愛人人 人人愛我」
+        // →關燈, 不合掌」)；不含「」引號，整行維持預設黑字。
+        const cue04Line3Html = escapeHtml('結束  →關燈,轉向甲, 不合掌');
         importantCueHtml = '<span class="value-cue">' + cueBullet + cueText(cue04Line1) + '<br>' + cueBullet + cue04Line2Html + '<br>' + cueBullet + cue04Line3Html + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '32.富中之富') {
@@ -4138,7 +4143,10 @@ function buildScenesHtml(rec, phase){
         importantCueValueClass = '';
       } else if (scene.title === '05.扛天下米籮') {
         // Per request：新增第二個拍點「OS：「我很震撼」→ 轉甲45°」。
-        importantCueHtml = '<span class="value-cue">' + ['空襲聲音→ 換扛天下米籮隊形', 'OS：「我很震撼」→ 轉甲45°'].map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
+        // Per request：第一行改為「空襲聲音→ 換基本隊形」，「空襲聲音」與「基本隊形」綠色粗體。
+        const GRN05 = 'color:#3aa655;font-weight:700;';
+        const line05_1 = '<span style="' + GRN05 + '">空襲聲音</span>→ 換<span style="' + GRN05 + '">基本隊形</span>';
+        importantCueHtml = '<span class="value-cue">' + cueBullet + line05_1 + '<br>' + cueBullet + cueText('OS：「我很震撼」→ 轉甲45°') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '06.靜思家風') {
         const isBlueCue = rec.group === 'A藍' || rec.group === 'B藍';
@@ -4179,11 +4187,13 @@ function buildScenesHtml(rec, phase){
           ]},
           { label: '六度', lines: [
             '「為應菩薩」大根機→內轉向乙圓心',
-            '再說六度波羅蜜 ...OS :「行六度」→合掌 ' + (isBlueGroup02 ? '右轉' : '左轉')
+            // Per request：「行六度」與「左轉」(藍衣為「右轉」)改紅字；「行六度」裡的
+            // 「六度」不再套用橘色關鍵字，整段「「行六度」」維持紅色。
+            { html: cueText('再說六度波羅蜜 ...OS :') + '<span style="color:#e53935">「行六度」</span>→' + cueText('合掌 ') + '<span style="color:#e53935">' + (isBlueGroup02 ? '右轉' : '左轉') + '</span>' }
           ]}
         ];
         importantCueHtml = '<span class="value-cue">' + cueGroups.map(g =>
-          cueBadge(g.label) + '<br>' + g.lines.map(l => cueBullet + cueText(l)).join('<br>')
+          cueBadge(g.label) + '<br>' + g.lines.map(l => cueBullet + (typeof l === 'object' ? l.html : cueText(l))).join('<br>')
         ).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '07.點一盞燈') {
@@ -4197,7 +4207,7 @@ function buildScenesHtml(rec, phase){
         // (蓮蓬外框、LOGO各區維持原樣)。
         if (area07Cue.indexOf('蓮蓬內') === 0) {
           cueLines[1] = '師父「我們需要你」→合掌 轉法師方向';
-          cueLines[2] = '「如果你們願意幫助我」→ 開黃燈,轉演繹方向';
+          cueLines[2] = '「如果」你們願意幫助我→ 開黃燈,轉演繹方向';
         }
         // Per request，「我就永遠不離開花蓮」拍點依區域分成不同動作，只有下面
         // 這幾個區域有這個拍點，其餘區域(如蓮蓬內-帆、LOGO下方3)不受影響。
@@ -4226,16 +4236,18 @@ function buildScenesHtml(rec, phase){
       } else if (scene.title === '09.是諸眾生') {
         const areaField9 = fields.find(f => f.label === '區域');
         const hasLotus9 = !!(areaField9 && areaField9.value && areaField9.value.indexOf('蓮蓬') !== -1);
-        const cueLines = [
+        const cueLines09All = [
           hasLotus9 ? 'OS:「菩薩所緣」→LOGO上舞台，轉向演繹面向' : 'OS:「菩薩所緣」，緣苦眾生→轉向演繹面向。',
           '「但願」將來..→開燈',
           // Per request：在最後新增一個拍點(同一行兩個動作)。
-          '「車禍尖叫聲」→換V隊形 , 「再不做來不及」→腳尖對線'
+          '結束演繹「車禍尖叫聲」→換V隊形 , 「再不做來不及」→腳尖對線'
         ];
+        // 11/12、11/14 只顯示最後一個拍點(車禍尖叫聲)，11/15 顯示全部三條。
+        const cueLines = currentPerformDate === '11/15' ? cueLines09All : cueLines09All.slice(-1);
         // Per request(與 v647_5 相同)：「車禍尖叫聲」與「V隊形」改綠色粗體。
         const GRN9 = 'color:#3aa655;font-weight:700;';
-        importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + (line.indexOf('「車禍尖叫聲」') === 0
-          ? '<span style="' + GRN9 + '">「車禍尖叫聲」</span>→換<span style="' + GRN9 + '">V隊形</span>' + cueText(' , 「再不做來不及」→腳尖對線')
+        importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + (line.indexOf('結束演繹「車禍尖叫聲」') === 0
+          ? '結束演繹<span style="' + GRN9 + '">「車禍尖叫聲」</span>→換<span style="' + GRN9 + '">V隊形</span>' + cueText(' , 「再不做來不及」→腳尖對線')
           : cueText(line))).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '10.地藏經啟航 / 11.船師大船師 / 12.四弘誓願') {
@@ -4269,8 +4281,12 @@ function buildScenesHtml(rec, phase){
         // 舞台上跑回V」，其他人的「收」維持原樣。
         const vow4WishLineVow12 = cueBullet + cueText('心血「澆灌而成」→講完 , 舞台上跑回V');
         importantCueHtml = isVow12
-          ? ('<span class="value-cue">' + vow12Html + '<br>' + vow4WishLineVow12 + '</span>')
-          : ('<span class="value-cue">' + vow12Html + '<br>' + vow4WishLine + '<br>' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>');
+          // Per request：isVow12的人在「怎麼做」這行後面新增「萬里長城」拍點
+          // (排在「心血澆灌而成」之前)。
+          ? ('<span class="value-cue">' + vow12Html + '<br>' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '<br>' + vow4WishLineVow12 + '</span>')
+          // Per request：非isVow12的人，「萬里長城」排在前面、「心血澆灌而成」排在後面
+          // (原本順序相反)。
+          : ('<span class="value-cue">' + vow12Html + '<br>' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '<br>' + vow4WishLine + '</span>');
         importantCueValueClass = '';
       } else if (scene.title === '13.大船師') {
         // Per request，原本「區域」是"船-北50"/"船-北西60"的人有自己的3行拍點
@@ -4362,8 +4378,11 @@ function buildScenesHtml(rec, phase){
         importantCueHtml = '<span class="value-cue">' + cueBullet + firstLine22 + '<br>' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
         importantCueValueClass = '';
       } else if (scene.title === '23.父母恩重難報經 / 24.跪羊圖') {
+        // Per request：第一行拿掉「OS ：」；編號為 1-XX ~ 9-XX 的人(第一個數字 1~9)
+        // 後面再接「 , 「...的回報父母恩」→高跪」。
+        const isLowNum2324 = /^[1-9]-\d+$/.test(rec.id);
         const cueLines = [
-          'OS ：「 在平時」...→ 合掌內轉向法師45°',
+          '「 在平時」...→ 合掌內轉向法師45°' + (isLowNum2324 ? ' , 「...的回報父母恩」→高跪' : ''),
           '法師說話：「對父母要知恩、...」→合掌'
         ];
         importantCueHtml = '<span class="value-cue">' + cueLines.map(line => cueBullet + cueText(line)).join('<br>') + '</span>';
