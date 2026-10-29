@@ -3969,7 +3969,7 @@ function buildScenesHtml(rec, phase){
         // Per request：11/14、11/15 上方標籤由「感恩」改為「藥草喻」(11/12 維持「感恩」)。
         // Per request(與 v647_5 相同)：「感恩」新增重要拍點，「慈濟世界是佛燈」與「基本隊形」綠色粗體。
         const cueBadge2021 = '<span style="display:inline-block; color:#1a3a8f; font-weight:700; border:1.5px solid #1a3a8f; border-radius:4px; padding:0px 5px; margin-bottom:2px;">' + escapeHtml(currentPerformDate === '11/12' ? '感恩' : '藥草喻') + '</span>';
-        importantCueHtml = '<span class="value-cue">' + cueBadge2021 + '<br>' + cueBullet + '<span style="color:#3aa655;font-weight:700;">「慈濟世界是佛燈」</span>→換<span style="color:#3aa655;font-weight:700;">基本隊形</span></span>';
+        importantCueHtml = '<span class="value-cue">' + cueBadge2021 + '<br>' + cueBullet + cueText('「教育人文」的展現→腳夾線') + '<br>' + cueBullet + '<span style="color:#3aa655;font-weight:700;">「慈濟世界是佛燈」</span>→換<span style="color:#3aa655;font-weight:700;">基本隊形</span></span>';
         importantCueValueClass = '';
       } else if (scene.title === '00.進場') {
         const cueLines00 = ['主持人:...以「莊嚴身心入經藏」→換圓形、面向圓心', '「深入經藏 智慧如海」→轉面向甲'];
