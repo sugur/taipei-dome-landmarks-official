@@ -1804,8 +1804,28 @@ function shiftDisplayNumbersForFirstMerit(str){
   }
   return out;
 }
+// Per request(11/12限定)：在「13.無醫村」上面新增一個「13.羅倫佐」(只有標題，
+// 沒有面向括號/拍點/標籤，跟無醫村同一張卡片)，從原本的13號(無醫村)起(含)，
+// 11/12後面所有曲目的顯示編號依序再+1。跟上面「第一功德」遞補同樣做法：統一在
+// displayTitle() 最終輸出套用，各場次覆蓋表/特例分支的編號維持原樣不動；
+// 11/14、11/15不受影響。注意 waveLampTag() 裡寫死的顯示編號(18大慈大悲、
+// 37.第三功德、40.諸惡道險)是不經過 displayTitle() 的，11/12另外各自+1；
+// 25/26/27 那組現在直接取 displayTitle() 的結果，自動一致。
+function shiftDisplayNumbersForLorenzo1112(str){
+  if (currentPerformDate !== '11/12') return str;
+  let out = String(str).replace(/(^|\s|\/)(\d{2})\.(?=\D)/g, function(m, pre, num){
+    const n = parseInt(num, 10);
+    return n >= 13 ? pre + String(n + 1) + '.' : m;
+  });
+  if (out.indexOf('羅倫佐') === -1) {
+    out = out.replace(/(^|\s|\/)14\.無醫村/, function(m, pre){
+      return pre + '13.羅倫佐 / 14.無醫村';
+    });
+  }
+  return out;
+}
 function displayTitle(title, rec){
-  return shiftDisplayNumbersForFirstMerit(displayTitleBase(title, rec));
+  return shiftDisplayNumbersForLorenzo1112(shiftDisplayNumbersForFirstMerit(displayTitleBase(title, rec)));
 }
 function displayTitleBase(title, rec){
   const byDate = SCENE_TITLE_OVERRIDES_BY_DATE[title];
@@ -2080,7 +2100,7 @@ function waveLampTag(scene, rec){
   if (scene.title === '37.諸佛菩薩大悲心[面甲45°] / 38.六度行 樂無窮[面甲45°] / 31.第三功德' && rec) {
     // Per request(11/12最新順序)：「31.第三功德」併進「諸佛菩薩大悲心/六度行」卡片(顯示「37.第三功德」)，
     // 標題後面只有第三功德這一項有「開綠燈」提示，白衣、藍衣都有。
-    const lineHtml37 = '<span class="tag-line"><span class="dot" style="background:#3aa655"></span><span class="dot-text">' + escapeHtml('37.第三功德: 開綠燈') + '</span></span>';
+    const lineHtml37 = '<span class="tag-line"><span class="dot" style="background:#3aa655"></span><span class="dot-text">' + escapeHtml('38.第三功德: 開綠燈') + '</span></span>';
     // Per request：這個標籤跟最後一行「37.第三功德」對齊(標題三行疊在一起，標籤靠下貼齊第三行，不置中)。
     return '<span class="scene-tag" style="align-self:flex-end;"><span class="tag-text">' + lineHtml37 + '</span></span>';
   }
@@ -2098,7 +2118,7 @@ function waveLampTag(scene, rec){
     // 編號(32/33)不受影響；這張卡片現在只會以兩項的形式出現，不會再有三項的
     // 版本，所以移除原本比對三合一title的備援分支。Per request(11/12限定，
     // 新增「13.無醫村」後)，編號再整體往後遞補1號(33→34)。
-    const line35 = { text: '40.諸惡道險: 開綠燈', color: '#3aa655' };
+    const line35 = { text: '41.諸惡道險: 開綠燈', color: '#3aa655' };
     const lineHtml35 = '<span class="tag-line"><span class="dot" style="background:' + line35.color + '"></span><span class="dot-text">' + escapeHtml(line35.text) + '</span></span>';
     // Per request：這個標籤跟最後一行「40.諸惡道險」對齊(標題兩行疊在一起，標籤靠下貼齊第二行，不置中)。
     return '<span class="scene-tag" style="align-self:flex-end;"><span class="tag-text">' + lineHtml35 + '</span></span>';
@@ -2107,8 +2127,9 @@ function waveLampTag(scene, rec){
     // 提示文字裡的編號(25/26/27)要跟著 11/14、11/15 場次的標題編號遞增(→26/27/28)，
     // 所以從當前日期的顯示標題(有覆蓋就用覆蓋文字，沒有就用原始 title)裡依序
     // 抓出三個數字，而不是寫死25/26/27。
-    const byDateTitles = SCENE_TITLE_OVERRIDES_BY_DATE[scene.title];
-    const dateTitleText = (byDateTitles && byDateTitles[currentPerformDate]) || scene.title;
+    // 改成直接取 displayTitle() 的最終顯示文字(含 11/12 新增「13.羅倫佐」後的
+    // 遞補)，編號才會永遠跟標題一致，不會再各自維護。
+    const dateTitleText = displayTitle(scene.title, rec);
     // Bug fix: this used to grab EVERY digit run in dateTitleText via
     // /\d+/g, which on 11/14/11/15 (where the override text also contains
     // "[面甲45°]" bracket annotations) picked up "45" as nums[2] instead of
@@ -2152,7 +2173,7 @@ function waveLampTag(scene, rec){
     // Per request(11/12限定，新增「13.無醫村」後)，11/12編號往後遞補1號
     // (17→18)。Per request(11/14、11/15限定，新增「13.江永旭/13.火宅喻」
     // 後)，11/14、11/15編號也各自往後遞補1號(17→18)，三場現在都是18。
-    const n17 = '18';
+    const n17 = currentPerformDate === '11/12' ? '19' : '18'; // 11/12再+1(新增13.羅倫佐)
     let txt = escapeHtml((n17 + ' 大慈大悲:開綠燈(口袋)').trim());
     txt = txt.replace('開綠燈(口袋)', '<br class="mobile-break">開綠燈(口袋)');
     return '<span class="scene-tag"><span class="dot" style="background:#3aa655"></span><span class="dot-text">' + txt + '</span></span>';
@@ -4328,10 +4349,10 @@ function buildScenesHtml(rec, phase){
         const isWhiteCue = rec.group === 'A白' || rec.group === 'B白';
         // Per request，「萬里長城」這行拍點原本只分白衣/藍衣兩種完全不同的
         // 文字(藍衣是「萬里長城」也是 從一塊磚開始 → 轉向甲舞台)，這次改成
-        // 統一句型、只差轉的方向：白衣右轉、藍衣左轉。
+        // 統一句型、只差轉的方向：白衣右轉向法師、藍衣內轉向甲(per request)。
         const cueLines = isWhiteCue
           ? ['「萬里長城」 → 內轉(右轉)向法師']
-          : ['「萬里長城」 → 內轉(左轉)向法師'];
+          : ['「萬里長城」 → 內轉向甲'];
         const cueBadge = function(label){
           return '<span style="display:inline-block; color:#1a3a8f; font-weight:700; border:1.5px solid #1a3a8f; border-radius:4px; padding:0px 5px; margin-bottom:2px;">' + escapeHtml(label) + '</span>';
         };
@@ -4364,7 +4385,10 @@ function buildScenesHtml(rec, phase){
         // Per request(11/12限定，顯示「13.無醫村」)：這張卡片最後新增「無醫村」的拍點，
         // 不分組別；11/14(13.江永旭)、11/15(13.火宅喻)不受影響。
         if (currentPerformDate === '11/12') {
-          importantCueHtml = importantCueHtml.replace(/<\/span>$/, '<br>' + cueBadge('無醫村') + '<br>' + cueBullet + cueText('「有意義的工作」→ 腳尖對線') + '</span>');
+          // Per request(11/12限定)：「13.羅倫佐」新增兩條拍點，排在「無醫村」前面
+          // (跟標題順序一致：羅倫佐在上、無醫村在下)。
+          const lorenzoLines = ['「我可以唱歌了」→拿燈不開燈', '「像這棵小樹一樣」→開綠燈舉高'];
+          importantCueHtml = importantCueHtml.replace(/<\/span>$/, '<br>' + cueBadge('羅倫佐') + '<br>' + lorenzoLines.map(l => cueBullet + cueText(l)).join('<br>') + '<br>' + cueBadge('無醫村') + '<br>' + cueBullet + cueText('「有意義的工作」→ 腳尖對線') + '</span>');
         }
         importantCueValueClass = '';
       } else if (scene.title === '13.大船師') {
@@ -4431,11 +4455,20 @@ function buildScenesHtml(rec, phase){
         const cueBadge = function(label){
           return '<span style="display:inline-block; color:#1a3a8f; font-weight:700; border:1.5px solid #1a3a8f; border-radius:4px; padding:0px 5px; margin-bottom:2px;">' + escapeHtml(label) + '</span>';
         };
-        const cap1Lines = [
-          '上人:「立大願」→ 右轉向法師，雙腳夾線，開綠燈手放腿邊(燈右手)'
-        ];
+        // Per request(11/12限定)：「立大願」改為「→ 右轉向法師」並新增一行「結束關燈轉甲」；
+        // 「2000年慈濟...」改為「→開燈, 拿燈合掌」。「掃廁所啊」那行維持不變。
+        // 11/14、11/15維持原本拍點。
+        const is1112Cue = currentPerformDate === '11/12';
+        const cap1Lines = is1112Cue
+          ? [
+              '上人:「立大願」→ 右轉向法師',
+              '結束關燈轉甲'
+            ]
+          : [
+              '上人:「立大願」→ 右轉向法師，雙腳夾線，開綠燈手放腿邊(燈右手)'
+            ];
         const cap2Lines = [
-          'OS:「2000年慈濟...」→拿燈合掌壓縮, 到位轉向法師',
+          is1112Cue ? 'OS:「2000年慈濟...」→開燈, 拿燈合掌' : 'OS:「2000年慈濟...」→拿燈合掌壓縮, 到位轉向法師',
           '「掃廁所啊」→ 收燈 , 「我們的榮耀」→  轉向甲'
         ];
         importantCueHtml = '<span class="value-cue">' +
